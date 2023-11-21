@@ -10,14 +10,14 @@ import {
   SlashCommandBuilder,
   VoiceBasedChannel,
 } from "discord.js";
-import { SpotifyApi } from "@spotify/web-api-ts-sdk";
+import { Artist, SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 import IOCContainer from "../../../inversify.config";
 
 @injectable()
 export default class PlayCommand implements Command {
   private playerService: PlayerService;
-  private spotifySDK: SpotifyApi;
+  private spotifyApi: SpotifyApi;
   private youTubeIClient: YouTubeIClient;
 
   slashCommandConfig;
@@ -35,7 +35,7 @@ export default class PlayCommand implements Command {
           .setRequired(true)
       );
 
-    this.spotifySDK = SpotifyApi.withClientCredentials(
+    this.spotifyApi = SpotifyApi.withClientCredentials(
       process.env.SPOTIFY_CLIENT_ID,
       process.env.SPOTIFY_CLIENT_SECRET
     );
@@ -71,7 +71,7 @@ export default class PlayCommand implements Command {
     return songs;
   }
 
-  public async fetchRequestedMedia(query): Promise<SongInfo[]> {
+  public async fetchRequestedMedia(query: string): Promise<SongInfo[]> {
     let requestedMedia;
     let requestedMediaURL: string;
 
@@ -87,14 +87,14 @@ export default class PlayCommand implements Command {
       const type = query.split("/")[3];
       const id = query.split("/")[4];
 
-      console.log(`type: ${type} | id: ${id}`);
-
       if (type === "track") {
-        const result = await this.spotifySDK.tracks.get(id);
+        const result = await this.spotifyApi.tracks.get(id);
         const { name, artists } = result;
 
-        const fullArtists = artists.flatMap((item) => item.name).join(", ");
-        const songName = `${fullArtists} - ${name}`;
+        const allArtists = artists
+          .flatMap((artist: Artist) => artist.name)
+          .join(" ");
+        const songName = `${allArtists} - ${name}`;
 
         const song = {
           url: result.uri,
@@ -107,27 +107,27 @@ export default class PlayCommand implements Command {
 
         return [song];
       } else if (type === "album") {
-        const spotifyAlbum = await this.spotifySDK.albums.get(id);
+        const spotifyAlbum = await this.spotifyApi.albums.get(id);
 
-        const artists = spotifyAlbum.artists
-          .map((artist) => artist.name)
+        const allArtists: string = spotifyAlbum.artists
+          .map((artist: Artist) => artist.name)
           .join(" ");
 
         const { items } = spotifyAlbum.tracks;
         const songs: SongInfo[] = items.map((item) => {
           return {
             url: item.uri,
-            title: `${artists} ${item.name}`,
+            title: `${allArtists} ${item.name}`,
             thumbnail: spotifyAlbum.images[0].url,
             description: "Spotify description",
-            query: `${artists} ${item.name}`,
+            query: `${allArtists} ${item.name}`,
             uploader: spotifyAlbum.label,
           };
         });
 
         return songs;
       } else if (type === "playlist") {
-        const playlist: any = await this.spotifySDK.playlists.getPlaylistItems(
+        const playlist: any = await this.spotifyApi.playlists.getPlaylistItems(
           id
         );
         const { items } = playlist.tracks;
@@ -138,7 +138,8 @@ export default class PlayCommand implements Command {
           return {
             url: track.uri,
             title: `${artists} ${track.name}`,
-            thumbnail: " ",
+            thumbnail:
+              "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/folder_920_201707260845-1.png",
             description: "Spotify description",
             query: `${artists} ${track.name}`,
             uploader: "Spotify uploader",
