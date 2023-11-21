@@ -19,7 +19,7 @@ class Application {
   public start() {
     this.musicBot
       .start()
-      .then(() => this.logger.info("Bot started succesfully"))
+      .then(() => this.logger.info("Bot started successfully"))
       .catch((err) => {
         this.logger.error("There was an error starting the Bot: ", err);
       });
