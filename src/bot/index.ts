@@ -20,7 +20,7 @@ export class MusicBot {
   constructor(
     @inject(TYPES.Logger) logger: Logger,
     @inject(TYPES.DiscordClient) discordClient: Client,
-    @inject(TYPES.CommandHandler) commandHandler: CommandsHandler
+    @inject(TYPES.CommandsHandler) commandHandler: CommandsHandler
   ) {
     this.logger = logger;
     this.discordClient = discordClient;
