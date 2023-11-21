@@ -3,23 +3,28 @@ import dotenv from "dotenv";
 import { MusicBot } from "./bot";
 import IOCContainer from "../inversify.config";
 import { TYPES } from "./types";
+import { Logger } from "./utils";
 
 dotenv.config();
 
 class Application {
-  private bot = IOCContainer.get<MusicBot>(TYPES.MusicBot);
+  private musicBot: MusicBot;
+  private logger: Logger;
 
-  constructor() {}
+  constructor() {
+    this.musicBot = IOCContainer.get<MusicBot>(TYPES.MusicBot);
+    this.logger = IOCContainer.get<Logger>(TYPES.Logger);
+  }
 
-  run() {
-    this.bot
+  public start() {
+    this.musicBot
       .start()
-      .then(() => console.log("overseer-music bot started succesfully"))
+      .then(() => this.logger.info("Bot started succesfully"))
       .catch((err) => {
-        console.error(err);
+        this.logger.error("There was an error starting the Bot: ", err);
       });
   }
 }
 
 const app = new Application();
-app.run();
+app.start();

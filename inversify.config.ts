@@ -6,7 +6,7 @@ import PlayCommand from "./src/commands/play";
 import { QueueCommand } from "./src/commands/queue";
 import { ResumeCommand } from "./src/commands/resume";
 import { SkipCommand } from "./src/commands/skip";
-import { CommandHandler } from "./src/handlers/command";
+import { CommandsHandler } from "./src/handlers/command";
 import { PlayerService } from "./src/services/player";
 import { GuildQueueService } from "./src/services/queue";
 import { TYPES } from "./src/types";
@@ -18,8 +18,8 @@ IOCContainer.bind<MusicBot>(TYPES.MusicBot).to(MusicBot).inSingletonScope();
 IOCContainer.bind<GuildQueueService>(TYPES.GuildQueueService)
   .to(GuildQueueService)
   .inSingletonScope();
-IOCContainer.bind<CommandHandler>(TYPES.CommandHandler)
-  .to(CommandHandler)
+IOCContainer.bind<CommandsHandler>(TYPES.CommandHandler)
+  .to(CommandsHandler)
   .inSingletonScope();
 IOCContainer.bind<Logger>(TYPES.Logger).to(Logger).inSingletonScope();
 IOCContainer.bind<PlayerService>(TYPES.PlayerService)

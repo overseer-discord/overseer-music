@@ -2,11 +2,11 @@ import {
   ChatInputCommandInteraction,
   Client,
   Events,
-  REST,
+  REST as DiscordRestClient,
   Routes,
 } from "discord.js";
 import { inject, injectable } from "inversify";
-import { CommandHandler } from "../handlers/command";
+import { CommandsHandler } from "../handlers/command";
 import { TYPES } from "../types";
 import { Logger } from "../utils";
 
@@ -14,41 +14,47 @@ import { Logger } from "../utils";
 export class MusicBot {
   private logger: Logger;
   private discordClient: Client;
-  private discordRestClient: REST;
-  private commandHandler: CommandHandler;
+  private discordRestClient: DiscordRestClient;
+  private commandsHandler: CommandsHandler;
 
   constructor(
     @inject(TYPES.Logger) logger: Logger,
     @inject(TYPES.DiscordClient) discordClient: Client,
-    @inject(TYPES.CommandHandler) commandHandler: CommandHandler
+    @inject(TYPES.CommandHandler) commandHandler: CommandsHandler
   ) {
     this.logger = logger;
     this.discordClient = discordClient;
-    this.commandHandler = commandHandler;
-    this.discordRestClient = new REST().setToken(process.env.TOKEN);
+    this.commandsHandler = commandHandler;
+    this.discordRestClient = new DiscordRestClient().setToken(
+      process.env.TOKEN
+    );
   }
 
   public async start(): Promise<void> {
     try {
-      this.addEventHandlers();
+      this.addClientEventHandlers();
 
-      console.log(process.env.CLIENT_ID);
-      const commands = this.commandHandler.getSlashCommands();
-      const data: any = await this.discordRestClient.put(
-        Routes.applicationGuildCommands(
-          process.env.CLIENT_ID,
-          "416126681976143899"
-        ),
-        { body: commands }
-      );
-
-      this.logger.info(
-        `Successfully reloaded ${data.length} application (/) commands.`
-      );
+      const commands = this.commandsHandler.getSlashCommands();
 
       this.discordClient.login(process.env.DISCORD_ACCESS_TOKEN);
+      const guilds = await this.discordClient.guilds.fetch();
+
+      guilds.forEach((guild) => {
+        this.discordRestClient
+          .put(
+            Routes.applicationGuildCommands(process.env.CLIENT_ID, guild.id),
+            { body: commands }
+          )
+          .then((data: any) => {
+            this.logger.info(
+              `Successfully reloaded ${data.length} application (/) commands to the ${guild.name} server`
+            );
+          })
+          .catch((err) => {
+            this.logger.error(err);
+          });
+      });
     } catch (err) {
-      this.logger.error(err);
       return Promise.reject(err);
     }
   }
@@ -57,9 +63,9 @@ export class MusicBot {
     this.discordClient.destroy();
   }
 
-  addEventHandlers() {
+  addClientEventHandlers() {
     this.discordClient.on(Events.InteractionCreate, (interaction) => {
-      this.commandHandler
+      this.commandsHandler
         .handleInteraction(interaction as ChatInputCommandInteraction)
         .catch((err) => this.logger.error(err));
     });
@@ -68,11 +74,11 @@ export class MusicBot {
       this.logger.info("Overseer music bot client logged in");
     });
 
-    this.discordClient.on("reconnecting", () => {
+    this.discordClient.on(Events.ShardReconnecting, () => {
       this.logger.info("Overseer music bot client reconecting");
     });
 
-    this.discordClient.on("disconnect", () => {
+    this.discordClient.on(Events.ShardDisconnect, () => {
       this.logger.info("Overseer music bot disconnect");
     });
   }
