@@ -1,0 +1,59 @@
+// {
+//   "compilerOptions": {
+//     "rootDir": ".",
+//     "sourceMap": true,
+//     "declaration": false,
+//     "moduleResolution": "node",
+//     "emitDecoratorMetadata": true,
+//     "experimentalDecorators": true,
+//     "esModuleInterop": true,
+//     "importHelpers": true,
+//     "target": "es2015",
+//     "module": "commonjs",
+//     "outDir": "build",
+//     "lib": ["es2017", "dom"],
+//     "skipLibCheck": true,
+//     "skipDefaultLibCheck": true,
+//     "baseUrl": ".",
+//   }
+// }
+
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "outDir": "./build",
+    "rootDir": "src",
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
+
+// {
+//   "extends": "../../tsconfig.base.json",
+//   "compilerOptions": {
+//     "module": "commonjs",
+//     "forceConsistentCasingInFileNames": true,
+//     "strict": true,
+//     "noImplicitOverride": true,
+//     "noPropertyAccessFromIndexSignature": true,
+//     "noImplicitReturns": true,
+//     "noFallthroughCasesInSwitch": true
+//   },
+//   "files": [],
+//   "include": [],
+//   "references": [
+//     {
+//       "path": "./tsconfig.lib.json"
+//     },
+//     {
+//       "path": "./tsconfig.spec.json"
+//     }
+//   ]
+// }

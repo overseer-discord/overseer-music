@@ -1,0 +1,42 @@
+{
+  "name": "overseer-music",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx nodemon",
+    "build": "npx tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuentinManemla/overseer-music.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/QuentinManemla/overseer-music/issues"
+  },
+  "homepage": "https://github.com/QuentinManemla/overseer-music#readme",
+  "devDependencies": {
+    "@types/node": "^20.9.2",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.9.0",
+    "@discordjs/voice": "^0.16.1",
+    "@spotify/web-api-ts-sdk": "^1.1.2",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1",
+    "inversify": "^6.0.2",
+    "libsodium-wrappers": "^0.7.13",
+    "pino": "^8.16.2",
+    "play-dl": "^1.9.7",
+    "reflect-metadata": "^0.1.13",
+    "youtubei": "^1.2.1",
+    "ytdl-core": "^4.11.5"
+  }
+}
