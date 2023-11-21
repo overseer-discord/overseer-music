@@ -75,7 +75,7 @@ export class MusicBot {
     });
 
     this.discordClient.on(Events.ShardReconnecting, () => {
-      this.logger.info("Overseer music bot client reconecting");
+      this.logger.info("Overseer music bot client reconnecting");
     });
 
     this.discordClient.on(Events.ShardDisconnect, () => {
