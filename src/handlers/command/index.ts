@@ -16,7 +16,7 @@ import { TYPES } from "../../types";
 import { Logger } from "../../utils";
 
 @injectable()
-export class CommandHandler {
+export class CommandsHandler {
   private commands: Command[] = [
     IOCContainer.get<PlayCommand>(TYPES.PlayCommand),
     IOCContainer.get<SkipCommand>(TYPES.SkipCommand),
