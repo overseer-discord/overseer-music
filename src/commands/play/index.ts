@@ -17,7 +17,7 @@ import IOCContainer from "../../../inversify.config";
 @injectable()
 export default class PlayCommand implements Command {
   private playerService: PlayerService;
-  private spotifySDK: SpotifyApi;
+  private spotifyApi: SpotifyApi;
   private youTubeIClient: YouTubeIClient;
 
   slashCommandConfig;
@@ -35,7 +35,7 @@ export default class PlayCommand implements Command {
           .setRequired(true)
       );
 
-    this.spotifySDK = SpotifyApi.withClientCredentials(
+    this.spotifyApi = SpotifyApi.withClientCredentials(
       process.env.SPOTIFY_CLIENT_ID,
       process.env.SPOTIFY_CLIENT_SECRET
     );
@@ -71,7 +71,7 @@ export default class PlayCommand implements Command {
     return songs;
   }
 
-  public async fetchRequestedMedia(query): Promise<SongInfo[]> {
+  public async fetchRequestedMedia(query: string): Promise<SongInfo[]> {
     let requestedMedia;
     let requestedMediaURL: string;
 
@@ -90,7 +90,7 @@ export default class PlayCommand implements Command {
       console.log(`type: ${type} | id: ${id}`);
 
       if (type === "track") {
-        const result = await this.spotifySDK.tracks.get(id);
+        const result = await this.spotifyApi.tracks.get(id);
         const { name, artists } = result;
 
         const fullArtists = artists.flatMap((item) => item.name).join(", ");
@@ -107,7 +107,7 @@ export default class PlayCommand implements Command {
 
         return [song];
       } else if (type === "album") {
-        const spotifyAlbum = await this.spotifySDK.albums.get(id);
+        const spotifyAlbum = await this.spotifyApi.albums.get(id);
 
         const artists = spotifyAlbum.artists
           .map((artist) => artist.name)
@@ -127,7 +127,7 @@ export default class PlayCommand implements Command {
 
         return songs;
       } else if (type === "playlist") {
-        const playlist: any = await this.spotifySDK.playlists.getPlaylistItems(
+        const playlist: any = await this.spotifyApi.playlists.getPlaylistItems(
           id
         );
         const { items } = playlist.tracks;
