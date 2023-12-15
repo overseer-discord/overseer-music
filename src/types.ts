@@ -2,7 +2,7 @@ export const TYPES = {
   MusicBot: Symbol("MusicBot"),
   Logger: Symbol("Logger"),
   DiscordClient: Symbol("DiscordClient"),
-  CommandHandler: Symbol("CommandHandler"),
+  CommandsHandler: Symbol("CommandsHandler"),
   GuildQueueService: Symbol("GuildQueueService"),
   SkipCommand: Symbol("SkipCommand"),
   PlayCommand: Symbol("PlayCommand"),
