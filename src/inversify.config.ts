@@ -18,7 +18,7 @@ IOCContainer.bind<MusicBot>(TYPES.MusicBot).to(MusicBot).inSingletonScope();
 IOCContainer.bind<GuildQueueService>(TYPES.GuildQueueService)
   .to(GuildQueueService)
   .inSingletonScope();
-IOCContainer.bind<CommandsHandler>(TYPES.CommandHandler)
+IOCContainer.bind<CommandsHandler>(TYPES.CommandsHandler)
   .to(CommandsHandler)
   .inSingletonScope();
 IOCContainer.bind<Logger>(TYPES.Logger).to(Logger).inSingletonScope();

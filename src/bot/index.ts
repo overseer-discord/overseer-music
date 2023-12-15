@@ -20,11 +20,11 @@ export class MusicBot {
   constructor(
     @inject(TYPES.Logger) logger: Logger,
     @inject(TYPES.DiscordClient) discordClient: Client,
-    @inject(TYPES.CommandsHandler) commandHandler: CommandsHandler
+    @inject(TYPES.CommandsHandler) commandsHandler: CommandsHandler
   ) {
     this.logger = logger;
     this.discordClient = discordClient;
-    this.commandsHandler = commandHandler;
+    this.commandsHandler = commandsHandler;
     this.discordRestClient = new DiscordRestClient().setToken(
       process.env.TOKEN
     );
