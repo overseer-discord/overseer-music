@@ -1,16 +1,16 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import { Container } from "inversify";
-import { MusicBot } from "./src/bot";
-import { PauseCommand } from "./src/commands/pause";
-import PlayCommand from "./src/commands/play";
-import { QueueCommand } from "./src/commands/queue";
-import { ResumeCommand } from "./src/commands/resume";
-import { SkipCommand } from "./src/commands/skip";
-import { CommandsHandler } from "./src/handlers/command";
-import { PlayerService } from "./src/services/player";
-import { GuildQueueService } from "./src/services/queue";
-import { TYPES } from "./src/types";
-import { Logger } from "./src/utils";
+import { MusicBot } from "./bot";
+import { PauseCommand } from "./commands/pause";
+import PlayCommand from "./commands/play";
+import { QueueCommand } from "./commands/queue";
+import { ResumeCommand } from "./commands/resume";
+import { SkipCommand } from "./commands/skip";
+import { CommandsHandler } from "./handlers/command";
+import { PlayerService } from "./services/player";
+import { GuildQueueService } from "./services/queue";
+import { TYPES } from "./types";
+import { Logger } from "./utils";
 
 const IOCContainer = new Container();
 

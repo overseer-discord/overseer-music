@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import dotenv from "dotenv";
 import { MusicBot } from "./bot";
-import IOCContainer from "../inversify.config";
+import IOCContainer from "./inversify.config";
 import { TYPES } from "./types";
 import { Logger } from "./utils";
 
