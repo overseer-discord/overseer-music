@@ -2,15 +2,14 @@ import {
   ChatInputCommandInteraction,
   Client,
   PermissionFlagsBits,
-  VoiceBasedChannel,
 } from "discord.js";
 import { inject, injectable } from "inversify";
-import IOCContainer from "../../../inversify.config";
 import { PauseCommand } from "../../commands/pause";
 import PlayCommand from "../../commands/play";
 import { QueueCommand } from "../../commands/queue";
 import { ResumeCommand } from "../../commands/resume";
 import { SkipCommand } from "../../commands/skip";
+import IOCContainer from "../../inversify.config";
 import { Command } from "../../models/command";
 import { TYPES } from "../../types";
 import { Logger } from "../../utils";
@@ -25,9 +24,14 @@ export class CommandsHandler {
     IOCContainer.get<QueueCommand>(TYPES.QueueCommand),
   ];
   private logger: Logger;
+  private discordClient: Client;
 
-  constructor(@inject(TYPES.Logger) logger: Logger) {
+  constructor(
+    @inject(TYPES.Logger) logger: Logger,
+    @inject(TYPES.DiscordClient) discordClient
+  ) {
     this.logger = logger;
+    this.discordClient = discordClient;
   }
 
   async handleInteraction(
@@ -38,19 +42,22 @@ export class CommandsHandler {
     );
 
     if (!matchedCommand) {
-      throw new Error("Command not matched");
+      return Promise.reject("Command not matched");
     }
 
-    const client = IOCContainer.get<Client>(TYPES.DiscordClient);
-    const guild = client.guilds.cache.get(interaction.guildId);
+    const guild = this.discordClient.guilds.cache.get(interaction.guildId);
     const member = await guild.members.fetch(interaction.member.user.id);
-    const voiceChannel: VoiceBasedChannel = member.voice.channel;
+
+    const { channel: voiceChannel } = member.voice;
 
     if (!voiceChannel) {
       await interaction.reply(
         "You need to be in a voice channel to play music!"
       );
-      return;
+
+      return Promise.reject(
+        "Member needs to be in a voice chanel to use bot commands"
+      );
     }
 
     const permissions = voiceChannel.permissionsFor(interaction.client.user);
@@ -62,21 +69,22 @@ export class CommandsHandler {
       await interaction.reply(
         "I need the permissions to join and speak in your voice channel!"
       );
-      return;
+
+      return Promise.reject(
+        "Bot does not have required permissions to join voice channel"
+      );
     }
 
     if (matchedCommand.execute) {
-      try {
-        await matchedCommand.execute(interaction);
-      } catch (err) {
-        this.logger.error(err);
-      }
+      matchedCommand
+        .execute(interaction)
+        .catch((err) => this.logger.error(err));
     }
   }
 
   getSlashCommands() {
     const commands = this.commands
-      .map((command) => {
+      .map((command: Command) => {
         if (command.slashCommandConfig) {
           return command.slashCommandConfig.toJSON();
         }

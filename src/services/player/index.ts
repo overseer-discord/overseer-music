@@ -1,7 +1,5 @@
 import {
-  ChatInputCommandInteraction,
   EmbedBuilder,
-  Message,
   TextBasedChannel,
   VoiceBasedChannel,
 } from "discord.js";
@@ -19,7 +17,7 @@ import {
   NoSubscriberBehavior,
 } from "@discordjs/voice";
 import { Logger, truncateString } from "../../utils";
-import { Client as YouTubeIClient, MusicClient, VideoCompact } from "youtubei";
+import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 
 @injectable()
 export class PlayerService {

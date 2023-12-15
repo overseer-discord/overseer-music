@@ -12,7 +12,7 @@ import {
 } from "discord.js";
 import { Artist, SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
-import IOCContainer from "../../../inversify.config";
+import IOCContainer from "../../inversify.config";
 
 @injectable()
 export default class PlayCommand implements Command {
