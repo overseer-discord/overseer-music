@@ -7,6 +7,7 @@ import { PlayerService } from "../../services/player";
 import {
   ChatInputCommandInteraction,
   Client,
+  EmbedBuilder,
   SlashCommandBuilder,
   VoiceBasedChannel,
 } from "discord.js";
@@ -42,112 +43,131 @@ export default class PlayCommand implements Command {
     this.youTubeIClient = new YouTubeIClient();
   }
 
-  async fetchYouTubePlaylistSongs(url: string): Promise<SongInfo[]> {
-    const urlParams = new URLSearchParams(url);
-    const playlistID = urlParams.get("list");
+  async fetchYoutubeMedia(uri: string) {
+    if (uri.includes("list")) {
+      const urlParams = new URLSearchParams(uri);
+      const playlistID = urlParams.get("list");
 
-    const client = new YouTubeIClient();
-    const results = await client.getPlaylist(playlistID);
-    let videoItems: VideoCompact[];
+      const client = new YouTubeIClient();
+      const results = await client.getPlaylist(playlistID);
+      let videoItems: VideoCompact[];
 
-    if ("items" in results.videos) {
-      results.videos.items;
-    }
-
-    const songs: SongInfo[] = videoItems.map((element) => {
-      const songURL = new URL("https://www.youtube.com/watch");
-      songURL.searchParams.append("v", element.id);
-
-      return {
-        url: songURL.toString(),
-        title: element.title,
-        thumbnail: element.thumbnails[element.thumbnails.length - 1].url,
-        query: songURL.toString(),
-        description: "From playlist",
-        uploader: "Uploader",
-      };
-    });
-
-    return songs;
-  }
-
-  public async fetchRequestedMedia(query: string): Promise<SongInfo[]> {
-    let requestedMedia;
-    let requestedMediaURL: string;
-
-    if (query.includes("youtu.be") || query.includes("youtube")) {
-      if (query.includes("list")) {
-        return await this.fetchYouTubePlaylistSongs(query);
+      if ("items" in results.videos) {
+        videoItems = results.videos.items;
       } else {
-        //TODO: Get video id from search & create song object
-        requestedMediaURL = query;
-        requestedMedia = await ytdl.getInfo(requestedMediaURL);
+        videoItems = results.videos;
       }
-    } else if (query.includes("https://open.spotify.com")) {
-      const type = query.split("/")[3];
-      const id = query.split("/")[4];
 
-      if (type === "track") {
-        const result = await this.spotifyApi.tracks.get(id);
-        const { name, artists } = result;
+      const songs: SongInfo[] = videoItems.map((element) => {
+        const songURL = new URL("https://www.youtube.com/watch");
+        songURL.searchParams.append("v", element.id);
 
-        const allArtists = artists
-          .flatMap((artist: Artist) => artist.name)
-          .join(" ");
-        const songName = `${allArtists} - ${name}`;
+        return {
+          url: songURL.toString(),
+          title: element.title,
+          thumbnail: element.thumbnails[element.thumbnails.length - 1].url,
+          query: songURL.toString(),
+          description: "From playlist",
+          uploader: "Uploader",
+        };
+      });
+
+      return songs;
+    } else {
+      const requestedMedia = await ytdl.getInfo(uri);
+
+      if (requestedMedia) {
+        const { videoDetails } = requestedMedia;
+        const { thumbnails } = videoDetails;
+        const thumbnail =
+          videoDetails.thumbnails[thumbnails.length - 1].url || null;
 
         const song = {
-          url: result.uri,
-          title: songName,
-          thumbnail: " ",
-          description: "Spotify description",
-          query: songName,
-          uploader: "Spotify uploader",
+          url: videoDetails.video_url,
+          title: videoDetails.title,
+          thumbnail: thumbnail || " ",
+          description: videoDetails.title,
+          query: uri,
+          uploader: videoDetails.author.name,
         };
 
         return [song];
-      } else if (type === "album") {
-        const spotifyAlbum = await this.spotifyApi.albums.get(id);
-
-        const allArtists: string = spotifyAlbum.artists
-          .map((artist: Artist) => artist.name)
-          .join(" ");
-
-        const { items } = spotifyAlbum.tracks;
-        const songs: SongInfo[] = items.map((item) => {
-          return {
-            url: item.uri,
-            title: `${allArtists} ${item.name}`,
-            thumbnail: spotifyAlbum.images[0].url,
-            description: "Spotify description",
-            query: `${allArtists} ${item.name}`,
-            uploader: spotifyAlbum.label,
-          };
-        });
-
-        return songs;
-      } else if (type === "playlist") {
-        const playlist: any = await this.spotifyApi.playlists.getPlaylistItems(
-          id
-        );
-        const { items } = playlist.tracks;
-        const songs: SongInfo[] = items.map((item) => {
-          const { track } = item;
-
-          const artists = track.artists.map((artist) => artist.name).join(" ");
-          return {
-            url: track.uri,
-            title: `${artists} ${track.name}`,
-            thumbnail:
-              "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/folder_920_201707260845-1.png",
-            description: "Spotify description",
-            query: `${artists} ${track.name}`,
-            uploader: "Spotify uploader",
-          };
-        });
-
-        return songs;
       }
+    }
+  }
+
+  async fetchSpotifyMedia(uri: string): Promise<SongInfo[]> {
+    const type = uri.split("/")[3];
+    const id = uri.split("/")[4];
+
+    if (type === "track") {
+      const result = await this.spotifyApi.tracks.get(id);
+      const { name, artists } = result;
+
+      const allArtists = artists
+        .flatMap((artist: Artist) => artist.name)
+        .join(" ");
+      const songName = `${allArtists} - ${name}`;
+
+      const song = {
+        url: result.uri,
+        title: songName,
+        thumbnail: " ",
+        description: "Spotify description",
+        query: songName,
+        uploader: "Spotify uploader",
+      };
+
+      return [song];
+    } else if (type === "album") {
+      const spotifyAlbum = await this.spotifyApi.albums.get(id);
+
+      const allArtists: string = spotifyAlbum.artists
+        .map((artist: Artist) => artist.name)
+        .join(" ");
+
+      const { items } = spotifyAlbum.tracks;
+      const songs: SongInfo[] = items.map((item) => {
+        return {
+          url: item.uri,
+          title: `${allArtists} ${item.name}`,
+          thumbnail: spotifyAlbum.images[0].url,
+          description: "Spotify description",
+          query: `${allArtists} ${item.name}`,
+          uploader: spotifyAlbum.label,
+        };
+      });
+
+      return songs;
+    } else if (type === "playlist") {
+      const playlist: any = await this.spotifyApi.playlists.getPlaylistItems(
+        id
+      );
+      const { items } = playlist.tracks;
+      const songs: SongInfo[] = items.map((item) => {
+        const { track } = item;
+
+        const artists = track.artists.map((artist) => artist.name).join(" ");
+        return {
+          url: track.uri,
+          title: `${artists} ${track.name}`,
+          thumbnail:
+            "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/folder_920_201707260845-1.png",
+          description: "Spotify description",
+          query: `${artists} ${track.name}`,
+          uploader: "Spotify uploader",
+        };
+      });
+
+      return songs;
+    }
+  }
+
+  public async fetchRequestedMedia(query: string): Promise<SongInfo[]> {
+    if (query.includes("youtu.be") || query.includes("youtube")) {
+      return await this.fetchYoutubeMedia(query);
+    } else if (query.includes("https://open.spotify.com")) {
+      return this.fetchSpotifyMedia(query);
     } else {
       const searchResults = await this.youTubeIClient.search(query);
       const { items } = searchResults;
@@ -192,6 +212,18 @@ export default class PlayCommand implements Command {
 
       const voiceChannel: VoiceBasedChannel =
         await this.getVoiceChannelFromInteraction(interaction);
+
+      if (songs.length > 1) {
+        const queueEmbed = new EmbedBuilder()
+          .setColor(0x0099ff)
+          .setDescription(`${songs.length} songs added to the queue`)
+          .setTimestamp()
+          .setFooter({
+            text: "Some footer text here",
+            iconURL: "https://i.imgur.com/AfFp7pu.png",
+          });
+        interaction.channel.send({ embeds: [queueEmbed] });
+      }
 
       const embed = await this.playerService.queueSongs(songs, {
         guildId: interaction.guild.id,

@@ -4,5 +4,6 @@ export interface SongInfo {
   thumbnail: string;
   query?: string;
   description?: string;
+  duration?: string;
   uploader?: string;
 }
