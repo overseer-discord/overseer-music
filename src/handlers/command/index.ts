@@ -1,4 +1,5 @@
 import {
+  ButtonInteraction,
   ChatInputCommandInteraction,
   Client,
   PermissionFlagsBits,
@@ -35,16 +36,8 @@ export class CommandsHandler {
   }
 
   async handleInteraction(
-    interaction: ChatInputCommandInteraction
+    interaction: ChatInputCommandInteraction | ButtonInteraction
   ): Promise<void> {
-    const matchedCommand = this.commands.find((command) =>
-      command.commandNames.includes(interaction.commandName)
-    );
-
-    if (!matchedCommand) {
-      return Promise.reject("Command not matched");
-    }
-
     const guild = this.discordClient.guilds.cache.get(interaction.guildId);
     const member = await guild.members.fetch(interaction.member.user.id);
 
@@ -75,9 +68,30 @@ export class CommandsHandler {
       );
     }
 
-    if (matchedCommand.execute) {
+    let commandName;
+    const isMessageComponent = interaction.isMessageComponent();
+
+    if (isMessageComponent) {
+      commandName = interaction.message.interaction.commandName;
+    } else {
+      commandName = interaction.commandName;
+    }
+
+    const matchedCommand = this.commands.find((command) =>
+      command.commandNames.includes(commandName)
+    );
+
+    if (!matchedCommand) {
+      return Promise.reject("Command not matched");
+    }
+
+    if (!isMessageComponent && matchedCommand.execute) {
       matchedCommand
         .execute(interaction)
+        .catch((err) => this.logger.error(err));
+    } else if (isMessageComponent && matchedCommand.handleMessageComponent) {
+      matchedCommand
+        .handleMessageComponent(interaction)
         .catch((err) => this.logger.error(err));
     }
   }
