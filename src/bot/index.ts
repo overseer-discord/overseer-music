@@ -1,4 +1,5 @@
 import {
+  ButtonInteraction,
   ChatInputCommandInteraction,
   Client,
   Events,
@@ -66,7 +67,9 @@ export class MusicBot {
   addClientEventHandlers() {
     this.discordClient.on(Events.InteractionCreate, (interaction) => {
       this.commandsHandler
-        .handleInteraction(interaction as ChatInputCommandInteraction)
+        .handleInteraction(
+          interaction as ChatInputCommandInteraction | ButtonInteraction
+        )
         .catch((err) => this.logger.error(err));
     });
 

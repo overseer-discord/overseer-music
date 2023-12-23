@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   ChatInputCommandInteraction,
   EmbedBuilder,
@@ -14,76 +15,61 @@ import { GuildQueueService } from "../../services/queue";
 @injectable()
 export class QueueCommand implements Command {
   private queueService: GuildQueueService;
+  private messageComponents;
 
   slashCommandConfig;
   commandNames = ["queue"];
 
   constructor(
-    @inject(TYPES.GuildQueueService) queueService: GuildQueueService,
+    @inject(TYPES.GuildQueueService) queueService: GuildQueueService
   ) {
     this.queueService = queueService;
     this.slashCommandConfig = new SlashCommandBuilder()
       .setName(this.commandNames[0])
       .setDescription("See the queue");
-  }
-
-  async execute(interaction: ChatInputCommandInteraction) {
-    await interaction.deferReply();
-
-    let page = 1;
-    const serverQueue = this.queueService.getGuildQueue(interaction.guildId);
 
     const confirm = new ButtonBuilder()
-      .setCustomId("confirm")
+      .setCustomId("next")
       .setLabel("  > >  ")
       .setStyle(ButtonStyle.Primary);
 
     const cancel = new ButtonBuilder()
-      .setCustomId("cancel")
+      .setCustomId("previous")
       .setLabel("  < <  ")
       .setStyle(ButtonStyle.Primary);
 
-    const row = new ActionRowBuilder().addComponents(cancel, confirm);
+    this.messageComponents = new ActionRowBuilder().addComponents(
+      cancel,
+      confirm
+    );
+  }
 
-    const songsMessage = serverQueue.songs.map((song, index) => {
-      if (index < page * 20) {
-        return `${index + 1}) ${song.title}`;
-      }
-    });
-
-    const response = await interaction.editReply({
-      content: "```" + songsMessage.join("\n") + "```",
-      components: [row as any],
-    });
-
-    const collectorFilter = (i) => i.user.id === interaction.user.id;
+  async handleMessageComponent(interaction: ButtonInteraction) {
+    const serverQueue = this.queueService.getGuildQueue(interaction.guildId);
+    const { customId } = interaction;
 
     try {
-      const confirmation = await response.awaitMessageComponent({
-        filter: collectorFilter,
-        time: 60000,
-      });
+      if (customId === "next") {
+        ++serverQueue.page;
 
-      const { customId } = confirmation;
-      if (customId === "confirm") {
-        ++page;
+        const pageSize = 20;
+        const startIndex = (serverQueue.page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const songsMessage = serverQueue.songs
+          .slice(startIndex, endIndex)
+          .map((song, index) => {
+            return `${startIndex + index + 1}) ${song.title}`;
+          });
 
-        const songsMessage = serverQueue.songs.map((song, index) => {
-          const limit = page * 20;
-          if (index < limit - 10 && index < limit) {
-            return `${index + 1}) ${song.title}`;
-          }
+        await interaction.message.edit({
+          content: "``` ...\n\n" + songsMessage.join("\n") + "```",
+          components: [this.messageComponents as any],
         });
-
-        await interaction.editReply({
-          content: "```" + songsMessage.join("\n") + "```",
-          components: [row as any],
-        });
-      } else if (customId === "cancel") {
-        await confirmation.update({
-          content: "Action cancelled",
-          components: [],
-        });
+      } else if (customId === "previous") {
+        // await confirmation.update({
+        //   content: "Action cancelled",
+        //   components: [],
+        // });
       }
     } catch (e) {
       await interaction.editReply({
@@ -91,5 +77,69 @@ export class QueueCommand implements Command {
         components: [],
       });
     }
+  }
+
+  async execute(interaction: ChatInputCommandInteraction) {
+    await interaction.deferReply();
+
+    const serverQueue = this.queueService.getGuildQueue(interaction.guildId);
+
+    serverQueue.page = 1;
+
+    const songsMessage = serverQueue.songs.map((song, index) => {
+      if (index < serverQueue.page * 20) {
+        return `${index + 1}) ${song.title}`;
+      }
+    });
+
+    await interaction.editReply({
+      content: "```" + songsMessage.join("\n") + "```",
+      components: [this.messageComponents as any],
+    });
+
+    // const collectorFilter = (i) => i.user.id === interaction.user.id;
+
+    // try {
+    //   const confirmation = await response.awaitMessageComponent({
+    //     filter: collectorFilter,
+    //     time: 60000,
+    //   });
+
+    //   const { customId } = confirmation;
+    //   if (customId === "next") {
+    //     ++page;
+
+    //     const pageSize = 20;
+    //     const startIndex = (page - 1) * pageSize;
+    //     const endIndex = startIndex + pageSize;
+
+    //     const songsMessage = serverQueue.songs
+    //       .slice(startIndex, endIndex)
+    //       .map((song, index) => {
+    //         return `${startIndex + index + 1}) ${song.title}`;
+    //       });
+
+    //     console.log("songsMessage", "```" + songsMessage.join("\n") + "```");
+    //     console.log("songsMessage.length()", songsMessage.length);
+    //     // await interaction.editReply({
+    //     //   content: "```" + songsMessage.join("\n") + "```",
+    //     //   components: [row as any],
+    //     // });
+    //     await confirmation.update({
+    //       content: "```" + songsMessage.join("\n") + "```",
+    //       components: [row as any],
+    //     });
+    //   } else if (customId === "previous") {
+    //     await confirmation.update({
+    //       content: "Action cancelled",
+    //       components: [],
+    //     });
+    //   }
+    // } catch (e) {
+    //   await interaction.editReply({
+    //     content: "Confirmation not received within 1 minute, cancelling",
+    //     components: [],
+    //   });
+    // }
   }
 }

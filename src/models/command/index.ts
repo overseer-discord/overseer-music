@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  ButtonInteraction,
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,
+} from "discord.js";
 import { CommandContext } from "./context";
 
 export interface Command {
@@ -10,5 +14,6 @@ export interface Command {
   >;
 
   execute(interaction: ChatInputCommandInteraction): Promise<void>;
+  handleMessageComponent?(interaction: ButtonInteraction): Promise<void>;
   hasPermissionToRun?(parsedUserCommand: CommandContext): boolean;
 }
