@@ -32,6 +32,10 @@
       "@babel/preset-typescript"
     ]
   },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
   "devDependencies": {
     "@babel/preset-env": "^7.23.6",
     "@babel/preset-typescript": "^7.23.3",
