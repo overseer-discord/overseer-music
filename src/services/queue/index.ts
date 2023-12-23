@@ -14,15 +14,15 @@ export class GuildQueueService {
     this.queue = new Map<number, ServerQueue>();
   }
 
-  public getGuildQueue(guildId): ServerQueue {
-    return this.queue.get(guildId);
+  public getGuildQueue(guildId: string): ServerQueue {
+    return this.queue.get(guildId) || null;
   }
 
-  public addGuildQueue(guildId, queue: ServerQueue): void {
+  public addGuildQueue(guildId: string, queue: ServerQueue): void {
     return this.queue.set(guildId, queue);
   }
 
-  public removeGuildQueue(guildId): void {
+  public removeGuildQueue(guildId: string): void {
     return this.queue.delete(guildId);
   }
 }

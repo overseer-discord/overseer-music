@@ -1,4 +1,4 @@
-name: Build
+name: Build & Test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: "*"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,7 +18,8 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Build
+    - name: Build & Test
       run: |
         yarn install
         yarn run build
+        yarn run test
