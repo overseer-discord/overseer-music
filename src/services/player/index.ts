@@ -1,8 +1,4 @@
-import {
-  EmbedBuilder,
-  TextBasedChannel,
-  VoiceBasedChannel,
-} from "discord.js";
+import { EmbedBuilder, TextBasedChannel, VoiceBasedChannel } from "discord.js";
 import { inject, injectable } from "inversify";
 import { TYPES } from "../../types";
 import { GuildQueueService } from "../queue";
@@ -28,7 +24,7 @@ export class PlayerService {
 
   constructor(
     @inject(TYPES.Logger) logger: Logger,
-    @inject(TYPES.GuildQueueService) guildQueueService: GuildQueueService,
+    @inject(TYPES.GuildQueueService) guildQueueService: GuildQueueService
   ) {
     this.logger = logger;
     this.queueService = guildQueueService;
@@ -40,7 +36,7 @@ export class PlayerService {
       guildId: string;
       voiceChannel: VoiceBasedChannel;
       textChannel: TextBasedChannel;
-    },
+    }
   ) {
     const serverQueue = this.queueService.getGuildQueue(options.guildId);
 
@@ -79,7 +75,7 @@ export class PlayerService {
             "Error:",
             error.message,
             "with track",
-            error.resource.metadata,
+            error.resource.metadata
           );
         });
 
@@ -88,7 +84,7 @@ export class PlayerService {
 
         const embeddedMessage = await this.playSong(
           newServerQueue.songs[0],
-          options,
+          options
         );
 
         return embeddedMessage;
@@ -133,11 +129,12 @@ export class PlayerService {
 
   public async pauseSong(options: { guildId: string }) {
     const serverQueue: ServerQueue = this.queueService.getGuildQueue(
-      options.guildId,
+      options.guildId
     );
 
     if (serverQueue && serverQueue.songs.length) {
       serverQueue.player.pause();
+      serverQueue.isPlaying = false;
     }
   }
 
@@ -146,6 +143,7 @@ export class PlayerService {
 
     if (serverQueue && serverQueue.songs.length) {
       serverQueue.player.unpause();
+      serverQueue.isPlaying = true;
     }
   }
 
@@ -155,11 +153,11 @@ export class PlayerService {
       guildId: string;
       textChannel: any;
       voiceChannel: VoiceBasedChannel;
-    },
+    }
   ) {
     const client = new YouTubeIClient();
     const serverQueue: ServerQueue = this.queueService.getGuildQueue(
-      options.guildId,
+      options.guildId
     );
 
     if (!song) {
@@ -230,6 +228,7 @@ export class PlayerService {
   private startPlaying(serverQueue: ServerQueue, resource: any) {
     serverQueue.player.play(resource);
     serverQueue.connection.subscribe(serverQueue.player);
+    serverQueue.isPlaying = true;
   }
 
   getSongInfoEmbeddedMessage = (song: SongInfo) => {

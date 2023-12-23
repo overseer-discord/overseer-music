@@ -12,5 +12,6 @@ export interface ServerQueue {
   volume: number;
   playing: boolean;
   isSkipping?: boolean;
+  isPlaying?: boolean;
   page?: number;
 }

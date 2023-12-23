@@ -5,6 +5,10 @@ import { TYPES } from "../../types";
 import { inject, injectable } from "inversify";
 import { PlayerService } from "../../services/player";
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
@@ -14,18 +18,31 @@ import {
 import { Artist, SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 import IOCContainer from "../../inversify.config";
+import { GuildQueueService } from "../../services/queue";
+
+enum PlayCommandMessageComponentID {
+  NEXT_SONG = "play.nextSongButton",
+  PREV_SONG = "play.prevSongButton",
+  PAUSE_SONG = "play.pauseSongButton",
+}
 
 @injectable()
 export default class PlayCommand implements Command {
+  private queueService: GuildQueueService;
   private playerService: PlayerService;
   private spotifyApi: SpotifyApi;
   private youTubeIClient: YouTubeIClient;
+  private messageComponents;
 
   slashCommandConfig;
   commandNames = ["play"];
 
-  constructor(@inject(TYPES.PlayerService) playerService: PlayerService) {
+  constructor(
+    @inject(TYPES.PlayerService) playerService: PlayerService,
+    @inject(TYPES.GuildQueueService) queueService: GuildQueueService
+  ) {
     this.playerService = playerService;
+    this.queueService = queueService;
     this.slashCommandConfig = new SlashCommandBuilder()
       .setName(this.commandNames[0])
       .setDescription("Plays a song")
@@ -36,11 +53,104 @@ export default class PlayCommand implements Command {
           .setRequired(true)
       );
 
+    const nextSongButton = new ButtonBuilder()
+      .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+      .setLabel("  ⏭️  ")
+      .setStyle(ButtonStyle.Primary);
+
+    const pauseSongButton = new ButtonBuilder()
+      .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+      .setLabel("  ⏯️  ")
+      .setStyle(ButtonStyle.Primary);
+
+    const prevSongButton = new ButtonBuilder()
+      .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+      .setLabel("  ⏮️  ")
+      .setStyle(ButtonStyle.Primary);
+
+    this.messageComponents = new ActionRowBuilder().addComponents(
+      prevSongButton,
+      pauseSongButton,
+      nextSongButton
+    );
+
     this.spotifyApi = SpotifyApi.withClientCredentials(
       process.env.SPOTIFY_CLIENT_ID,
       process.env.SPOTIFY_CLIENT_SECRET
     );
     this.youTubeIClient = new YouTubeIClient();
+  }
+
+  async execute(interaction: ChatInputCommandInteraction) {
+    try {
+      await interaction.deferReply();
+
+      const inputValue = String(interaction.options.data[0].value);
+
+      const songs: SongInfo[] = await this.fetchRequestedMedia(inputValue);
+
+      const voiceChannel: VoiceBasedChannel =
+        await this.getVoiceChannelFromInteraction(interaction);
+
+      if (songs.length > 1) {
+        const queueEmbed = new EmbedBuilder()
+          .setColor(0x0099ff)
+          .setDescription(`${songs.length} songs added to the queue`)
+          .setTimestamp()
+          .setFooter({
+            text: "Some footer text here",
+            iconURL: "https://i.imgur.com/AfFp7pu.png",
+          });
+        interaction.channel.send({ embeds: [queueEmbed] });
+      }
+
+      const embed = await this.playerService.queueSongs(songs, {
+        guildId: interaction.guild.id,
+        textChannel: interaction.channel,
+        voiceChannel: voiceChannel,
+      });
+
+      await interaction.editReply({
+        embeds: [embed],
+        components: [this.messageComponents as any],
+      });
+    } catch (err) {
+      interaction.editReply("Couldn't fetch requested media");
+      return Promise.reject(err);
+    }
+  }
+
+  async handleMessageComponent(interaction: ButtonInteraction) {
+    const serverQueue = this.queueService.getGuildQueue(interaction.guildId);
+    const { customId } = interaction;
+
+    try {
+      switch (customId) {
+        case PlayCommandMessageComponentID.NEXT_SONG:
+          this.playerService.skipSong(interaction.guildId);
+          break;
+        case PlayCommandMessageComponentID.PAUSE_SONG:
+          if (serverQueue.isPlaying == true) {
+            this.playerService.pauseSong({ guildId: interaction.guildId });
+            break;
+          } else {
+            this.playerService.resumeSong(interaction.guildId);
+            break;
+          }
+        case PlayCommandMessageComponentID.PREV_SONG:
+          console.log("Previous song");
+          break;
+        default:
+          break;
+      }
+    } catch (e) {
+      await interaction.editReply({
+        content: "Confirmation not received within 1 minute, cancelling",
+        components: [],
+      });
+    } finally {
+      interaction.deferUpdate();
+    }
   }
 
   async fetchYoutubeMedia(uri: string) {
@@ -200,41 +310,5 @@ export default class PlayCommand implements Command {
     const member = await guild.members.fetch(interaction.member.user.id);
 
     return member.voice.channel;
-  }
-
-  async execute(interaction: ChatInputCommandInteraction) {
-    try {
-      await interaction.deferReply();
-
-      const inputValue = String(interaction.options.data[0].value);
-
-      const songs: SongInfo[] = await this.fetchRequestedMedia(inputValue);
-
-      const voiceChannel: VoiceBasedChannel =
-        await this.getVoiceChannelFromInteraction(interaction);
-
-      if (songs.length > 1) {
-        const queueEmbed = new EmbedBuilder()
-          .setColor(0x0099ff)
-          .setDescription(`${songs.length} songs added to the queue`)
-          .setTimestamp()
-          .setFooter({
-            text: "Some footer text here",
-            iconURL: "https://i.imgur.com/AfFp7pu.png",
-          });
-        interaction.channel.send({ embeds: [queueEmbed] });
-      }
-
-      const embed = await this.playerService.queueSongs(songs, {
-        guildId: interaction.guild.id,
-        textChannel: interaction.channel,
-        voiceChannel: voiceChannel,
-      });
-
-      await interaction.editReply({ embeds: [embed] });
-    } catch (err) {
-      interaction.editReply("Couldn't fetch requested media");
-      return Promise.reject(err);
-    }
   }
 }
