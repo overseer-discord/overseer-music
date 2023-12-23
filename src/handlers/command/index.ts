@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { inject, injectable } from "inversify";
+import NowPlayingCommand from "../../commands/nowplaying";
 import { PauseCommand } from "../../commands/pause";
 import PlayCommand from "../../commands/play";
 import { QueueCommand } from "../../commands/queue";
@@ -17,13 +18,7 @@ import { Logger } from "../../utils";
 
 @injectable()
 export class CommandsHandler {
-  private commands: Command[] = [
-    IOCContainer.get<PlayCommand>(TYPES.PlayCommand),
-    IOCContainer.get<SkipCommand>(TYPES.SkipCommand),
-    IOCContainer.get<PauseCommand>(TYPES.PauseCommand),
-    IOCContainer.get<ResumeCommand>(TYPES.ResumeCommand),
-    IOCContainer.get<QueueCommand>(TYPES.QueueCommand),
-  ];
+  private commands: Command[] = [];
   private logger: Logger;
   private discordClient: Client;
 
@@ -31,6 +26,19 @@ export class CommandsHandler {
     @inject(TYPES.Logger) logger: Logger,
     @inject(TYPES.DiscordClient) discordClient
   ) {
+    const commandClasses = [
+      PlayCommand,
+      SkipCommand,
+      PauseCommand,
+      ResumeCommand,
+      QueueCommand,
+      NowPlayingCommand,
+    ];
+
+    this.commands = commandClasses.map((commandClass) =>
+      IOCContainer.get<Command>(TYPES[commandClass.name as keyof typeof TYPES])
+    );
+
     this.logger = logger;
     this.discordClient = discordClient;
   }
