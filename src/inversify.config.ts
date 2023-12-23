@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import { Container } from "inversify";
 import { MusicBot } from "./bot";
+import NowPlayingCommand from "./commands/nowplaying";
 import { PauseCommand } from "./commands/pause";
 import PlayCommand from "./commands/play";
 import { QueueCommand } from "./commands/queue";
@@ -39,6 +40,9 @@ IOCContainer.bind<ResumeCommand>(TYPES.ResumeCommand)
   .inSingletonScope();
 IOCContainer.bind<QueueCommand>(TYPES.QueueCommand)
   .to(QueueCommand)
+  .inSingletonScope();
+IOCContainer.bind<NowPlayingCommand>(TYPES.NowPlayingCommand)
+  .to(NowPlayingCommand)
   .inSingletonScope();
 IOCContainer.bind<Client>(TYPES.DiscordClient).toConstantValue(
   new Client({

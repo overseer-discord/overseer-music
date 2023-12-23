@@ -15,7 +15,7 @@ export class GuildQueueService {
   }
 
   public getGuildQueue(guildId: string): ServerQueue {
-    return this.queue.get(guildId) || null;
+    return this.queue.get(guildId) || null || null;
   }
 
   public addGuildQueue(guildId: string, queue: ServerQueue): void {
