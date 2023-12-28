@@ -4,6 +4,7 @@ import { MusicBot } from "./bot";
 import NowPlayingCommand from "./commands/nowplaying";
 import { PauseCommand } from "./commands/pause";
 import PlayCommand from "./commands/play";
+import { PreviousCommand } from "./commands/previous";
 import { QueueCommand } from "./commands/queue";
 import { ResumeCommand } from "./commands/resume";
 import { SkipCommand } from "./commands/skip";
@@ -28,6 +29,9 @@ IOCContainer.bind<PlayerService>(TYPES.PlayerService)
   .inSingletonScope();
 IOCContainer.bind<SkipCommand>(TYPES.SkipCommand)
   .to(SkipCommand)
+  .inSingletonScope();
+IOCContainer.bind<PreviousCommand>(TYPES.PreviousCommand)
+  .to(PreviousCommand)
   .inSingletonScope();
 IOCContainer.bind<PlayCommand>(TYPES.PlayCommand)
   .to(PlayCommand)

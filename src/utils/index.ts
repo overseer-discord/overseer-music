@@ -14,7 +14,7 @@ export class Logger implements LogInterface {
 
   constructor() {
     this.logger = pino({
-      name: "app-name",
+      name: "overseer-music",
     });
   }
 
@@ -26,15 +26,14 @@ export class Logger implements LogInterface {
     this.logger.error(message, supportingData);
   }
 
-  info(message: string, ...supportingData: any[]): void {
-    this.logger.info(message, supportingData);
+  info(message: string, obj?: any, ...supportingData: any[]): void {
+    this.logger.info(obj, message, supportingData);
   }
 
   warn(message: string, ...supportingData: any[]): void {
     this.logger.warn(message, supportingData);
   }
 }
-
 
 export function truncateString(str: string, length: number) {
   if (str.length > length) {

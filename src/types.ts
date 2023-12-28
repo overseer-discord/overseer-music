@@ -5,6 +5,7 @@ export const TYPES = {
   CommandsHandler: Symbol("CommandsHandler"),
   GuildQueueService: Symbol("GuildQueueService"),
   SkipCommand: Symbol("SkipCommand"),
+  PreviousCommand: Symbol("PreviousCommand"),
   PlayCommand: Symbol("PlayCommand"),
   PlayerService: Symbol("PlayerService"),
   PauseCommand: Symbol("PauseCommand"),
