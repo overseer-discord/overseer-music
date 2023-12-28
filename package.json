@@ -55,7 +55,7 @@
     "dotenv": "^16.3.1",
     "inversify": "^6.0.2",
     "libsodium-wrappers": "^0.7.13",
-    "pino": "^8.17.1",
+    "pino": "^8.17.2",
     "play-dl": "^1.9.7",
     "reflect-metadata": "^0.2.1",
     "youtubei": "^1.2.1",
