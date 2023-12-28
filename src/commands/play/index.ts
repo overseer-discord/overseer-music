@@ -98,9 +98,32 @@ export default class PlayCommand implements Command {
         voiceChannel: voiceChannel,
       });
 
+      const messageComponents = new ActionRowBuilder();
+
+      messageComponents.addComponents(
+        new ButtonBuilder()
+          .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+          .setLabel("  ⏭️  ")
+          .setStyle(ButtonStyle.Primary)
+      );
+
+      messageComponents.addComponents(
+        new ButtonBuilder()
+          .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+          .setLabel("  ⏸  ")
+          .setStyle(ButtonStyle.Primary)
+      );
+
+      messageComponents.addComponents(
+        new ButtonBuilder()
+          .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+          .setLabel("  ⏮️  ")
+          .setStyle(ButtonStyle.Primary)
+      );
+
       await interaction.editReply({
         embeds: [embed],
-        components: [this.messageComponents as any],
+        components: [messageComponents as any],
       });
 
       if (songs.length > 1) {

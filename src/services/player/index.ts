@@ -122,8 +122,7 @@ export class PlayerService {
 
         return embed;
       } else {
-        console.log("Reached the end of the queue");
-        return Promise.reject();
+        return Promise.reject(new Error("Reached the end of the queue"));
       }
     }
   }
@@ -134,7 +133,7 @@ export class PlayerService {
     if (serverQueue) {
       const previousSongPosition = (serverQueue.songPosition -= 1);
 
-      if (serverQueue.songs[previousSongPosition]) {
+      if (previousSongPosition < 0 && serverQueue.songs[previousSongPosition]) {
         serverQueue.isSkipping = true;
         serverQueue.player.pause();
 
@@ -148,7 +147,7 @@ export class PlayerService {
 
         return embed;
       } else {
-        console.log("Reached the beginning of the queue");
+        return Promise.reject(new Error("Reached the beginning of the queue"));
       }
     }
   }
@@ -211,7 +210,6 @@ export class PlayerService {
       stream.stream.on("close", () => {
         if (serverQueue.isSkipping === true) {
           serverQueue.isSkipping = false;
-          serverQueue.songPosition;
         } else {
           this.handleSongFinish(options.guildId, serverQueue);
         }

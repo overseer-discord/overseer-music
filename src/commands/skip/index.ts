@@ -29,9 +29,14 @@ export class SkipCommand implements Command {
   async execute(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
 
-    this.playerService.nextSong(interaction.guild.id).then((songInfoEmbed) => {
-      interaction.editReply({ embeds: [songInfoEmbed] });
-    });
+    this.playerService
+      .nextSong(interaction.guild.id)
+      .then((songInfoEmbed) => {
+        interaction.editReply({ embeds: [songInfoEmbed] });
+      })
+      .catch((error) => {
+        return new Error(`Error skipping song: ${error}`);
+      });
   }
 
   getSongInfoEmbeddedMessage = (song: SongInfo) => {
