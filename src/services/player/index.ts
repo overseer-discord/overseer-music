@@ -102,11 +102,10 @@ export class PlayerService {
     }
   }
 
-  public async skipSong(guildId: string) {
+  public async nextSong(guildId: string): Promise<any> {
     const serverQueue: ServerQueue = this.queueService.getGuildQueue(guildId);
 
     if (serverQueue) {
-      serverQueue.songs.shift();
       const nextSongPosition = (serverQueue.songPosition += 1);
 
       if (serverQueue.songs[nextSongPosition]) {
@@ -115,14 +114,40 @@ export class PlayerService {
 
         const nextSong = serverQueue.songs[nextSongPosition];
 
-        const songInfoEmbed = await this.playSong(nextSong, {
+        const embed = await this.playSong(nextSong, {
           guildId: guildId,
           textChannel: serverQueue.textChannel,
           voiceChannel: serverQueue.voiceChannel,
         });
-        serverQueue.textChannel.send({ embeds: [songInfoEmbed] });
+
+        return embed;
       } else {
-        console.log("Reached the end of the queue");
+        return Promise.reject(new Error("Reached the end of the queue"));
+      }
+    }
+  }
+
+  public async previousSong(guildId: string): Promise<any> {
+    const serverQueue: ServerQueue = this.queueService.getGuildQueue(guildId);
+
+    if (serverQueue) {
+      const previousSongPosition = (serverQueue.songPosition -= 1);
+
+      if (previousSongPosition < 0 && serverQueue.songs[previousSongPosition]) {
+        serverQueue.isSkipping = true;
+        serverQueue.player.pause();
+
+        const previousSong = serverQueue.songs[previousSongPosition];
+
+        const embed = await this.playSong(previousSong, {
+          guildId: guildId,
+          textChannel: serverQueue.textChannel,
+          voiceChannel: serverQueue.voiceChannel,
+        });
+
+        return embed;
+      } else {
+        return Promise.reject(new Error("Reached the beginning of the queue"));
       }
     }
   }
@@ -193,7 +218,7 @@ export class PlayerService {
       const resource = this.createAudioResource(stream.stream, stream.type);
 
       this.startPlaying(serverQueue, resource);
-      const songInfoEmbed = this.getSongInfoEmbeddedMessage(song);
+      const songInfoEmbed = this.getSongInfoEmbeddedMessage(song, serverQueue);
 
       return songInfoEmbed;
     } catch (err) {
@@ -231,7 +256,7 @@ export class PlayerService {
     serverQueue.isPlaying = true;
   }
 
-  getSongInfoEmbeddedMessage = (song: SongInfo) => {
+  getSongInfoEmbeddedMessage = (song: SongInfo, queue: ServerQueue) => {
     return new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(song.title)
@@ -243,7 +268,12 @@ export class PlayerService {
       })
       .setDescription(truncateString(song.description || "--", 50))
       .setThumbnail(song.thumbnail)
-      .addFields({ name: song.uploader, value: song.uploader })
+      .addFields({ name: "Uploader", value: song.uploader, inline: true })
+      .addFields({
+        name: "Song position",
+        value: `[ ${queue.songPosition + 1} / ${queue.songs.length} ]`,
+        inline: true,
+      })
       .setTimestamp()
       .setFooter({
         text: "Some footer text here",
