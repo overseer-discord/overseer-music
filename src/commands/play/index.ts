@@ -60,7 +60,7 @@ export default class PlayCommand implements Command {
 
     const pauseSongButton = new ButtonBuilder()
       .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
-      .setLabel("  ⏯️  ")
+      .setLabel("  ⏸  ")
       .setStyle(ButtonStyle.Primary);
 
     const prevSongButton = new ButtonBuilder()
@@ -92,18 +92,6 @@ export default class PlayCommand implements Command {
       const voiceChannel: VoiceBasedChannel =
         await this.getVoiceChannelFromInteraction(interaction);
 
-      if (songs.length > 1) {
-        const queueEmbed = new EmbedBuilder()
-          .setColor(0x0099ff)
-          .setDescription(`${songs.length} songs added to the queue`)
-          .setTimestamp()
-          .setFooter({
-            text: "Some footer text here",
-            iconURL: "https://i.imgur.com/AfFp7pu.png",
-          });
-        interaction.channel.send({ embeds: [queueEmbed] });
-      }
-
       const embed = await this.playerService.queueSongs(songs, {
         guildId: interaction.guild.id,
         textChannel: interaction.channel,
@@ -114,6 +102,18 @@ export default class PlayCommand implements Command {
         embeds: [embed],
         components: [this.messageComponents as any],
       });
+
+      if (songs.length > 1) {
+        const queueEmbed = new EmbedBuilder()
+          .setColor(0x0099ff)
+          .setTitle(`${songs.length} songs added to the queue`)
+          .setTimestamp()
+          .setFooter({
+            text: "Some footer text here",
+            iconURL: "https://i.imgur.com/AfFp7pu.png",
+          });
+        interaction.channel.send({ embeds: [queueEmbed] });
+      }
     } catch (err) {
       interaction.editReply("Couldn't fetch requested media");
       return Promise.reject(err);
@@ -127,18 +127,82 @@ export default class PlayCommand implements Command {
     try {
       switch (customId) {
         case PlayCommandMessageComponentID.NEXT_SONG:
-          this.playerService.skipSong(interaction.guildId);
+          const nextSongembed = await this.playerService.nextSong(
+            interaction.guildId
+          );
+          await interaction.update({
+            embeds: [nextSongembed],
+            components: [this.messageComponents as any],
+          });
           break;
         case PlayCommandMessageComponentID.PAUSE_SONG:
           if (serverQueue.isPlaying == true) {
-            this.playerService.pauseSong({ guildId: interaction.guildId });
+            await this.playerService.pauseSong({
+              guildId: interaction.guildId,
+            });
+
+            const nextSongButton = new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+              .setLabel("  ⏭️  ")
+              .setStyle(ButtonStyle.Primary);
+
+            const pauseSongButton = new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+              .setLabel("  ▶  ")
+              .setStyle(ButtonStyle.Primary);
+
+            const prevSongButton = new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+              .setLabel("  ⏮️  ")
+              .setStyle(ButtonStyle.Primary);
+
+            const messageComponents = new ActionRowBuilder().addComponents(
+              prevSongButton,
+              pauseSongButton,
+              nextSongButton
+            );
+
+            await interaction.update({
+              components: [messageComponents as any],
+            });
             break;
           } else {
-            this.playerService.resumeSong(interaction.guildId);
+            await this.playerService.resumeSong(interaction.guildId);
+
+            const nextSongButton = new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+              .setLabel("  ⏭️  ")
+              .setStyle(ButtonStyle.Primary);
+
+            const pauseSongButton = new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+              .setLabel("  ⏸  ")
+              .setStyle(ButtonStyle.Primary);
+
+            const prevSongButton = new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+              .setLabel("  ⏮️  ")
+              .setStyle(ButtonStyle.Primary);
+
+            const messageComponents = new ActionRowBuilder().addComponents(
+              prevSongButton,
+              pauseSongButton,
+              nextSongButton
+            );
+
+            await interaction.update({
+              components: [messageComponents as any],
+            });
             break;
           }
         case PlayCommandMessageComponentID.PREV_SONG:
-          console.log("Previous song");
+          const previousSongEmbed = await this.playerService.previousSong(
+            interaction.guildId
+          );
+          await interaction.update({
+            embeds: [previousSongEmbed],
+            components: [this.messageComponents as any],
+          });
           break;
         default:
           break;
@@ -148,8 +212,6 @@ export default class PlayCommand implements Command {
         content: "Confirmation not received within 1 minute, cancelling",
         components: [],
       });
-    } finally {
-      interaction.deferUpdate();
     }
   }
 
