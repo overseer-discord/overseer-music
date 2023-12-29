@@ -8,6 +8,7 @@ import { inject, injectable } from "inversify";
 import NowPlayingCommand from "../../commands/nowplaying";
 import { PauseCommand } from "../../commands/pause";
 import PlayCommand from "../../commands/play";
+import { PreviousCommand } from "../../commands/previous";
 import { QueueCommand } from "../../commands/queue";
 import { ResumeCommand } from "../../commands/resume";
 import { SkipCommand } from "../../commands/skip";
@@ -29,6 +30,7 @@ export class CommandsHandler {
     const commandClasses = [
       PlayCommand,
       SkipCommand,
+      PreviousCommand,
       PauseCommand,
       ResumeCommand,
       QueueCommand,
@@ -96,7 +98,21 @@ export class CommandsHandler {
     if (!isMessageComponent && matchedCommand.execute) {
       matchedCommand
         .execute(interaction)
-        .catch((err) => this.logger.error(err));
+        .then(() => {
+          this.logger.info(`Executing command [/${interaction.commandName}]`, {
+            guild: { id: interaction.guildId, name: interaction.guild.name },
+            user: { name: interaction.user.globalName },
+          });
+        })
+        .catch((err) =>
+          this.logger.error(
+            `Error executing command [/${interaction.commandName}]: ${err}`,
+            {
+              guild: { id: interaction.guildId, name: interaction.guild.name },
+              user: { name: interaction.user.globalName },
+            }
+          )
+        );
     } else if (isMessageComponent && matchedCommand.handleMessageComponent) {
       matchedCommand
         .handleMessageComponent(interaction)

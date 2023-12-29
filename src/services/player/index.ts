@@ -133,7 +133,10 @@ export class PlayerService {
     if (serverQueue) {
       const previousSongPosition = (serverQueue.songPosition -= 1);
 
-      if (previousSongPosition < 0 && serverQueue.songs[previousSongPosition]) {
+      if (
+        previousSongPosition >= 0 &&
+        serverQueue.songs[previousSongPosition]
+      ) {
         serverQueue.isSkipping = true;
         serverQueue.player.pause();
 
