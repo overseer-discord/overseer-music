@@ -1,5 +1,9 @@
 # Overseer music
 
+<p align="center">
+  <img src="public\overseer-music-github-readme-cover.png?raw=true" alt="Overseer music custom image"/>
+</p>
+
 This is a simple Discord music bot written in TypeScript using Yarn as the package manager. It utilizes Discord.js for interacting with the Discord API and features basic music playback capabilities.
 
 ## Prerequisites
@@ -14,7 +18,7 @@ Before you start, make sure you have the following installed:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/QuentinManemla/overseer-music.git
+   git clone https://github.com/overseer-discord/overseer-music.git
    ```
 
 2. Navigate to the project directory:
@@ -33,15 +37,7 @@ Before you start, make sure you have the following installed:
 
 1. Create a new Discord bot and obtain the token. You can do this by creating a new application on the [Discord Developer Portal](https://discord.com/developers/applications).
 
-2. Rename the `config.example.ts` file to `config.ts` and update the `TOKEN` field with your bot token.
-
-```typescript
-// config.ts
-
-export const config = {
-  TOKEN: 'YOUR_BOT_TOKEN_HERE',
-};
-```
+2. Rename the `.env.example` file to `.env` and update the fields with the neccesarry values
 
 ## Usage
 
@@ -66,7 +62,7 @@ yarn build
 Then start the bot:
 
 ```bash
-yarn dev
+yarn start
 ```
 
 ## Scripts

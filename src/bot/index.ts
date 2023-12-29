@@ -27,7 +27,7 @@ export class MusicBot {
     this.discordClient = discordClient;
     this.commandsHandler = commandsHandler;
     this.discordRestClient = new DiscordRestClient().setToken(
-      process.env.TOKEN
+      process.env.DISCORD_ACCESS_TOKEN
     );
   }
 
@@ -43,7 +43,7 @@ export class MusicBot {
       guilds.forEach((guild) => {
         this.discordRestClient
           .put(
-            Routes.applicationGuildCommands(process.env.CLIENT_ID, guild.id),
+            Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, guild.id),
             { body: commands }
           )
           .then((data: any) => {
