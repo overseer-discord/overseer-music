@@ -43,7 +43,10 @@ export class MusicBot {
       guilds.forEach((guild) => {
         this.discordRestClient
           .put(
-            Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, guild.id),
+            Routes.applicationGuildCommands(
+              process.env.DISCORD_CLIENT_ID,
+              guild.id
+            ),
             { body: commands }
           )
           .then((data: any) => {
@@ -58,6 +61,15 @@ export class MusicBot {
     } catch (err) {
       return Promise.reject(err);
     }
+  }
+
+  public async health(): Promise<any> {
+    return {
+      time: Date.now(),
+      readyTime: this.discordClient.readyTimestamp,
+      isReady: this.discordClient.isReady(),
+      uptime: this.discordClient.uptime,
+    };
   }
 
   public async destroy() {
