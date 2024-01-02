@@ -356,7 +356,7 @@ export default class PlayCommand implements Command {
         return {
           url: track.uri,
           title: `${artists} ${track.name}`,
-          duration: track.duration_ms * 1000,
+          duration: track.duration_ms / 1000,
           thumbnail:
             "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/folder_920_201707260845-1.png",
           description: "Spotify description",
