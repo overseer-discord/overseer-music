@@ -9,8 +9,6 @@ import { inject, injectable } from "inversify";
 import { PlayerService } from "../../services/player";
 import { SongInfo } from "../../models/song";
 import { truncateString } from "../../utils";
-import { ServerQueue } from "../../models/queue";
-import { GuildQueueService } from "../../services/queue";
 
 @injectable()
 export class SkipCommand implements Command {
@@ -52,10 +50,6 @@ export class SkipCommand implements Command {
       .setDescription(truncateString(song.description || "--", 50))
       .setThumbnail(song.thumbnail)
       .addFields({ name: song.uploader, value: song.uploader })
-      .setTimestamp()
-      .setFooter({
-        text: "Some footer text here",
-        iconURL: "https://i.imgur.com/AfFp7pu.png",
-      });
+      .setTimestamp();
   };
 }

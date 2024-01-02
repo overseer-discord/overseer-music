@@ -40,3 +40,8 @@ export function truncateString(str: string, length: number) {
     return str.slice(0, length) + "...";
   } else return str;
 }
+
+export function formatSecondsToReadableTime(seconds: number) {
+  const formatSeconds = new Date(seconds * 1000).toISOString().substr(11, 8);
+  return formatSeconds;
+}
