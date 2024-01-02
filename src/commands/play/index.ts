@@ -314,7 +314,7 @@ export default class PlayCommand implements Command {
 
       const song = {
         url: result.uri,
-        duration: result.duration_ms * 1000,
+        duration: result.duration_ms / 1000,
         title: songName,
         thumbnail: " ",
         description: "Spotify description",
