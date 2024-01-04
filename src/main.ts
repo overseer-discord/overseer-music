@@ -49,6 +49,8 @@ class Application {
       this.logger.info(
         `[server]: Server is running at http://localhost:${this.port}`
       );
+    }).on('error', (err) => {
+      this.logger.error('Server failed to start:', err);
     });
   }
 }
