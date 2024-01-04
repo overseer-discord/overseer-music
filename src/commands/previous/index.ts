@@ -50,10 +50,6 @@ export class PreviousCommand implements Command {
       .setDescription(truncateString(song.description || "--", 50))
       .setThumbnail(song.thumbnail)
       .addFields({ name: song.uploader, value: song.uploader })
-      .setTimestamp()
-      .setFooter({
-        text: "Some footer text here",
-        iconURL: "https://i.imgur.com/AfFp7pu.png",
-      });
+      .setTimestamp();
   };
 }

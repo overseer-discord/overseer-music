@@ -12,7 +12,11 @@ import {
   joinVoiceChannel,
   NoSubscriberBehavior,
 } from "@discordjs/voice";
-import { Logger, truncateString } from "../../utils";
+import {
+  formatSecondsToReadableTime,
+  Logger,
+  truncateString,
+} from "../../utils";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 
 @injectable()
@@ -260,6 +264,8 @@ export class PlayerService {
   }
 
   getSongInfoEmbeddedMessage = (song: SongInfo, queue: ServerQueue) => {
+    const songDuration = formatSecondsToReadableTime(song.duration);
+
     return new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(song.title)
@@ -273,15 +279,16 @@ export class PlayerService {
       .setThumbnail(song.thumbnail)
       .addFields({ name: "Uploader", value: song.uploader, inline: true })
       .addFields({
-        name: "Song position",
+        name: "Position",
         value: `[ ${queue.songPosition + 1} / ${queue.songs.length} ]`,
         inline: true,
       })
-      .setTimestamp()
-      .setFooter({
-        text: "Some footer text here",
-        iconURL: "https://i.imgur.com/AfFp7pu.png",
-      });
+      .addFields({
+        name: "Duration",
+        value: songDuration.toString(),
+        inline: true,
+      })
+      .setTimestamp();
   };
 
   getAddedSongInfoToQueueEmbeddedMessage = (song: SongInfo) => {

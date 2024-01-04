@@ -19,6 +19,7 @@ import { Artist, SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 import IOCContainer from "../../inversify.config";
 import { GuildQueueService } from "../../services/queue";
+import { formatSecondsToReadableTime } from "../../utils";
 
 enum PlayCommandMessageComponentID {
   NEXT_SONG = "play.nextSongButton",
@@ -127,14 +128,19 @@ export default class PlayCommand implements Command {
       });
 
       if (songs.length > 1) {
+        const playlistDuration = songs.reduce(
+          (totalDuration, song) => totalDuration + song.duration,
+          0
+        );
+        const formattedSeconds = formatSecondsToReadableTime(playlistDuration);
+
         const queueEmbed = new EmbedBuilder()
           .setColor(0x0099ff)
-          .setTitle(`${songs.length} songs added to the queue`)
-          .setTimestamp()
-          .setFooter({
-            text: "Some footer text here",
-            iconURL: "https://i.imgur.com/AfFp7pu.png",
-          });
+          .setTitle(
+            `${songs.length} songs added to the queue \`${formattedSeconds} \``
+          )
+          .setTimestamp();
+
         interaction.channel.send({ embeds: [queueEmbed] });
       }
     } catch (err) {
@@ -262,6 +268,7 @@ export default class PlayCommand implements Command {
           title: element.title,
           thumbnail: element.thumbnails[element.thumbnails.length - 1].url,
           query: songURL.toString(),
+          duration: element.duration,
           description: "From playlist",
           uploader: "Uploader",
         };
@@ -282,6 +289,7 @@ export default class PlayCommand implements Command {
           title: videoDetails.title,
           thumbnail: thumbnail || " ",
           description: videoDetails.title,
+          duration: Number(videoDetails.lengthSeconds),
           query: uri,
           uploader: videoDetails.author.name,
         };
@@ -306,6 +314,7 @@ export default class PlayCommand implements Command {
 
       const song = {
         url: result.uri,
+        duration: result.duration_ms / 1000,
         title: songName,
         thumbnail: " ",
         description: "Spotify description",
@@ -326,6 +335,7 @@ export default class PlayCommand implements Command {
         return {
           url: item.uri,
           title: `${allArtists} ${item.name}`,
+          duration: item.duration_ms * 1000,
           thumbnail: spotifyAlbum.images[0].url,
           description: "Spotify description",
           query: `${allArtists} ${item.name}`,
@@ -341,11 +351,12 @@ export default class PlayCommand implements Command {
       const { items } = playlist.tracks;
       const songs: SongInfo[] = items.map((item) => {
         const { track } = item;
-
         const artists = track.artists.map((artist) => artist.name).join(" ");
+
         return {
           url: track.uri,
           title: `${artists} ${track.name}`,
+          duration: track.duration_ms / 1000,
           thumbnail:
             "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/folder_920_201707260845-1.png",
           description: "Spotify description",
@@ -377,6 +388,7 @@ export default class PlayCommand implements Command {
       const song: SongInfo = {
         url: songURL.toString(),
         title: title,
+        duration: topResult.duration,
         thumbnail: thumbnails[topResult.thumbnails.length - 1].url,
         description: description,
         query: query,
