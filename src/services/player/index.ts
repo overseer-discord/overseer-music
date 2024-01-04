@@ -264,6 +264,8 @@ export class PlayerService {
   }
 
   getSongInfoEmbeddedMessage = (song: SongInfo, queue: ServerQueue) => {
+    const songDuration = formatSecondsToReadableTime(song.duration);
+
     return new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(song.title)
@@ -279,6 +281,11 @@ export class PlayerService {
       .addFields({
         name: "Position",
         value: `[ ${queue.songPosition + 1} / ${queue.songs.length} ]`,
+        inline: true,
+      })
+      .addFields({
+        name: "Duration",
+        value: songDuration.toString(),
         inline: true,
       })
       .setTimestamp();

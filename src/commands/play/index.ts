@@ -19,7 +19,6 @@ import { Artist, SpotifyApi } from "@spotify/web-api-ts-sdk";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 import IOCContainer from "../../inversify.config";
 import { GuildQueueService } from "../../services/queue";
-import { res } from "pino-std-serializers";
 import { formatSecondsToReadableTime } from "../../utils";
 
 enum PlayCommandMessageComponentID {
@@ -141,6 +140,7 @@ export default class PlayCommand implements Command {
             `${songs.length} songs added to the queue \`${formattedSeconds} \``
           )
           .setTimestamp();
+
         interaction.channel.send({ embeds: [queueEmbed] });
       }
     } catch (err) {
