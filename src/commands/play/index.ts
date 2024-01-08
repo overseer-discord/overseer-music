@@ -99,28 +99,23 @@ export default class PlayCommand implements Command {
         voiceChannel: voiceChannel,
       });
 
-      const messageComponents = new ActionRowBuilder();
+      const serverQueue = this.queueService.getGuildQueue(interaction.guildId);
 
-      messageComponents.addComponents(
+      const messageComponents = new ActionRowBuilder().addComponents([
+        new ButtonBuilder()
+          .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+          .setLabel("  ⏪  ")
+          .setDisabled(serverQueue.songPosition === 0)
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+          .setLabel("  ▶  ")
+          .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
           .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
           .setLabel("  ⏭️  ")
-          .setStyle(ButtonStyle.Primary)
-      );
-
-      messageComponents.addComponents(
-        new ButtonBuilder()
-          .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
-          .setLabel("  ⏸  ")
-          .setStyle(ButtonStyle.Primary)
-      );
-
-      messageComponents.addComponents(
-        new ButtonBuilder()
-          .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
-          .setLabel("  ⏮️  ")
-          .setStyle(ButtonStyle.Primary)
-      );
+          .setStyle(ButtonStyle.Primary),
+      ]);
 
       await interaction.editReply({
         embeds: [embed],
@@ -170,26 +165,21 @@ export default class PlayCommand implements Command {
               guildId: interaction.guildId,
             });
 
-            const nextSongButton = new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
-              .setLabel("  ⏭️  ")
-              .setStyle(ButtonStyle.Primary);
-
-            const pauseSongButton = new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
-              .setLabel("  ▶  ")
-              .setStyle(ButtonStyle.Primary);
-
-            const prevSongButton = new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
-              .setLabel("  ⏮️  ")
-              .setStyle(ButtonStyle.Primary);
-
-            const messageComponents = new ActionRowBuilder().addComponents(
-              prevSongButton,
-              pauseSongButton,
-              nextSongButton
-            );
+            const messageComponents = new ActionRowBuilder().addComponents([
+              new ButtonBuilder()
+                .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+                .setLabel("  ⏪  ")
+                .setDisabled(serverQueue.songPosition === 0)
+                .setStyle(ButtonStyle.Primary),
+              new ButtonBuilder()
+                .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+                .setLabel("  ▶  ")
+                .setStyle(ButtonStyle.Primary),
+              new ButtonBuilder()
+                .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+                .setLabel("  ⏭️  ")
+                .setStyle(ButtonStyle.Primary),
+            ]);
 
             await interaction.update({
               components: [messageComponents as any],
@@ -198,26 +188,21 @@ export default class PlayCommand implements Command {
           } else {
             await this.playerService.resumeSong(interaction.guildId);
 
-            const nextSongButton = new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
-              .setLabel("  ⏭️  ")
-              .setStyle(ButtonStyle.Primary);
-
-            const pauseSongButton = new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
-              .setLabel("  ⏸  ")
-              .setStyle(ButtonStyle.Primary);
-
-            const prevSongButton = new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
-              .setLabel("  ⏮️  ")
-              .setStyle(ButtonStyle.Primary);
-
-            const messageComponents = new ActionRowBuilder().addComponents(
-              prevSongButton,
-              pauseSongButton,
-              nextSongButton
-            );
+            const messageComponents = new ActionRowBuilder().addComponents([
+              new ButtonBuilder()
+                .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+                .setLabel("  ⏪  ")
+                .setDisabled(serverQueue.songPosition === 0)
+                .setStyle(ButtonStyle.Primary),
+              new ButtonBuilder()
+                .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+                .setLabel("  ⏸  ")
+                .setStyle(ButtonStyle.Primary),
+              new ButtonBuilder()
+                .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+                .setLabel("  ⏭️  ")
+                .setStyle(ButtonStyle.Primary),
+            ]);
 
             await interaction.update({
               components: [messageComponents as any],
@@ -228,9 +213,26 @@ export default class PlayCommand implements Command {
           const previousSongEmbed = await this.playerService.previousSong(
             interaction.guildId
           );
+
+          const messageComponents = new ActionRowBuilder().addComponents([
+            new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+              .setLabel("  ⏪  ")
+              .setDisabled(serverQueue.songPosition === 0)
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+              .setLabel("  ⏸  ")
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+              .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+              .setLabel("  ⏭️  ")
+              .setStyle(ButtonStyle.Primary),
+          ]);
+
           await interaction.update({
             embeds: [previousSongEmbed],
-            components: [this.messageComponents as any],
+            components: [messageComponents as any],
           });
           break;
         default:

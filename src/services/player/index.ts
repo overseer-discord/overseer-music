@@ -131,6 +131,71 @@ export class PlayerService {
     }
   }
 
+  public async jumpToSong(guildId: string, songPosition: number): Promise<any> {
+    const serverQueue: ServerQueue = this.queueService.getGuildQueue(guildId);
+
+    if (serverQueue) {
+      if (songPosition > serverQueue.songs.length) {
+        return Promise.reject(new Error("Song position is not valid"));
+      }
+      const newSongPosition = songPosition - 1;
+      serverQueue.songPosition = newSongPosition;
+
+      const nextSong = serverQueue.songs[newSongPosition];
+      serverQueue.isSkipping = true;
+      serverQueue.player.pause();
+
+      const embed = await this.playSong(nextSong, {
+        guildId: guildId,
+        textChannel: serverQueue.textChannel,
+        voiceChannel: serverQueue.voiceChannel,
+      });
+
+      return embed;
+    }
+
+    return Promise.reject(new Error("Queue not found"));
+  }
+
+  public async moveSong(
+    guildId: string,
+    songPosition: number,
+    moveToPosition: number
+  ): Promise<any> {
+    const serverQueue: ServerQueue = this.queueService.getGuildQueue(guildId);
+
+    if (serverQueue) {
+      if (
+        !this.isSongPositionValid(serverQueue, songPosition) ||
+        !this.isSongPositionValid(serverQueue, moveToPosition)
+      ) {
+        return Promise.reject(new Error("Invalid song positions"));
+      }
+
+      const adjustedSongPosition = songPosition - 1;
+      const adjustedMoveToPosition = moveToPosition - 1;
+
+      const movedSong = serverQueue.songs.splice(adjustedSongPosition, 1)[0];
+      serverQueue.songs.splice(adjustedMoveToPosition, 0, movedSong);
+
+      if (serverQueue.songPosition === adjustedSongPosition) {
+        serverQueue.songPosition = adjustedMoveToPosition;
+      }
+
+      return Promise.resolve();
+    }
+
+    return Promise.reject(new Error("Queue not found"));
+  }
+
+  isSongPositionValid(serverQueue: ServerQueue, position: number): boolean {
+    if (position < 1 || position > serverQueue.songs.length) {
+      return false;
+    }
+
+    return true;
+  }
+
   public async previousSong(guildId: string): Promise<any> {
     const serverQueue: ServerQueue = this.queueService.getGuildQueue(guildId);
 
