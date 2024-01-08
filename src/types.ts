@@ -12,4 +12,6 @@ export const TYPES = {
   ResumeCommand: Symbol("ResumeCommand"),
   QueueCommand: Symbol("QueueCommand"),
   NowPlayingCommand: Symbol("NowPlayingCommand"),
+  JumpCommand: Symbol("JumpCommand"),
+  MoveCommand: Symbol("MoveCommand"),
 };

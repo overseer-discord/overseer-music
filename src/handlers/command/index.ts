@@ -5,6 +5,8 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { inject, injectable } from "inversify";
+import { JumpCommand } from "../../commands/jump";
+import { MoveCommand } from "../../commands/move";
 import NowPlayingCommand from "../../commands/nowplaying";
 import { PauseCommand } from "../../commands/pause";
 import PlayCommand from "../../commands/play";
@@ -35,6 +37,8 @@ export class CommandsHandler {
       ResumeCommand,
       QueueCommand,
       NowPlayingCommand,
+      JumpCommand,
+      MoveCommand,
     ];
 
     this.commands = commandClasses.map((commandClass) =>
