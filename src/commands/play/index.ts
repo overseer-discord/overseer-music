@@ -20,6 +20,7 @@ import { Client as YouTubeIClient, VideoCompact } from "youtubei";
 import IOCContainer from "../../inversify.config";
 import { GuildQueueService } from "../../services/queue";
 import { formatSecondsToReadableTime } from "../../utils";
+import { ServerQueue } from "../../models/queue";
 
 enum PlayCommandMessageComponentID {
   NEXT_SONG = "play.nextSongButton",
@@ -165,21 +166,7 @@ export default class PlayCommand implements Command {
               guildId: interaction.guildId,
             });
 
-            const messageComponents = new ActionRowBuilder().addComponents([
-              new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
-                .setLabel("  ⏪  ")
-                .setDisabled(serverQueue.songPosition === 0)
-                .setStyle(ButtonStyle.Primary),
-              new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
-                .setLabel("  ▶  ")
-                .setStyle(ButtonStyle.Primary),
-              new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
-                .setLabel("  ⏭️  ")
-                .setStyle(ButtonStyle.Primary),
-            ]);
+            const messageComponents = this.createMessageComponents(serverQueue);
 
             await interaction.update({
               components: [messageComponents as any],
@@ -187,22 +174,7 @@ export default class PlayCommand implements Command {
             break;
           } else {
             await this.playerService.resumeSong(interaction.guildId);
-
-            const messageComponents = new ActionRowBuilder().addComponents([
-              new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
-                .setLabel("  ⏪  ")
-                .setDisabled(serverQueue.songPosition === 0)
-                .setStyle(ButtonStyle.Primary),
-              new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
-                .setLabel("  ⏸  ")
-                .setStyle(ButtonStyle.Primary),
-              new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
-                .setLabel("  ⏭️  ")
-                .setStyle(ButtonStyle.Primary),
-            ]);
+            const messageComponents = this.createMessageComponents(serverQueue);
 
             await interaction.update({
               components: [messageComponents as any],
@@ -214,22 +186,7 @@ export default class PlayCommand implements Command {
             interaction.guildId
           );
 
-          const messageComponents = new ActionRowBuilder().addComponents([
-            new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
-              .setLabel("  ⏪  ")
-              .setDisabled(serverQueue.songPosition === 0)
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
-              .setLabel("  ⏸  ")
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
-              .setLabel("  ⏭️  ")
-              .setStyle(ButtonStyle.Primary),
-          ]);
-
+          const messageComponents = this.createMessageComponents(serverQueue);
           await interaction.update({
             embeds: [previousSongEmbed],
             components: [messageComponents as any],
@@ -244,6 +201,24 @@ export default class PlayCommand implements Command {
         components: [],
       });
     }
+  }
+
+  createMessageComponents(serverQueue: ServerQueue): ActionRowBuilder {
+    return new ActionRowBuilder().addComponents([
+      new ButtonBuilder()
+        .setCustomId(PlayCommandMessageComponentID.PREV_SONG)
+        .setLabel("  ⏪  ")
+        .setDisabled(serverQueue.songPosition === 0)
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
+        .setLabel(serverQueue.isPlaying == true ? "  ⏸  " : "  ▶  ")
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId(PlayCommandMessageComponentID.NEXT_SONG)
+        .setLabel("  ⏭️  ")
+        .setStyle(ButtonStyle.Primary),
+    ]);
   }
 
   async fetchYoutubeMedia(uri: string) {
