@@ -40,8 +40,8 @@ export class JumpCommand implements Command {
       .then((songInfoEmbed) => {
         interaction.editReply({ embeds: [songInfoEmbed] });
       })
-      .catch((error) => {
-        return new Error(`Error skipping song: ${error}`);
+      .catch((error: Error) => {
+        interaction.editReply(`Error skipping song: ${error.message}`);
       });
   }
 
