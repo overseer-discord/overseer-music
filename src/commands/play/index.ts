@@ -24,7 +24,7 @@ import { formatSecondsToReadableTime } from "../../utils";
 enum PlayCommandMessageComponentID {
   NEXT_SONG = "play.nextSongButton",
   PREV_SONG = "play.prevSongButton",
-  PAUSE_SONG = "play.pauseSongButton",
+  TOGGLE_PAUSE = "play.pauseSongButton",
 }
 
 @injectable()
@@ -60,7 +60,7 @@ export default class PlayCommand implements Command {
       .setStyle(ButtonStyle.Primary);
 
     const pauseSongButton = new ButtonBuilder()
-      .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+      .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
       .setLabel("  ⏸  ")
       .setStyle(ButtonStyle.Primary);
 
@@ -108,7 +108,7 @@ export default class PlayCommand implements Command {
           .setDisabled(serverQueue.songPosition === 0)
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
-          .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+          .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
           .setLabel("  ▶  ")
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
@@ -159,7 +159,7 @@ export default class PlayCommand implements Command {
             components: [this.messageComponents as any],
           });
           break;
-        case PlayCommandMessageComponentID.PAUSE_SONG:
+        case PlayCommandMessageComponentID.TOGGLE_PAUSE:
           if (serverQueue.isPlaying == true) {
             await this.playerService.pauseSong({
               guildId: interaction.guildId,
@@ -172,7 +172,7 @@ export default class PlayCommand implements Command {
                 .setDisabled(serverQueue.songPosition === 0)
                 .setStyle(ButtonStyle.Primary),
               new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+                .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
                 .setLabel("  ▶  ")
                 .setStyle(ButtonStyle.Primary),
               new ButtonBuilder()
@@ -195,7 +195,7 @@ export default class PlayCommand implements Command {
                 .setDisabled(serverQueue.songPosition === 0)
                 .setStyle(ButtonStyle.Primary),
               new ButtonBuilder()
-                .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+                .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
                 .setLabel("  ⏸  ")
                 .setStyle(ButtonStyle.Primary),
               new ButtonBuilder()
@@ -221,7 +221,7 @@ export default class PlayCommand implements Command {
               .setDisabled(serverQueue.songPosition === 0)
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
-              .setCustomId(PlayCommandMessageComponentID.PAUSE_SONG)
+              .setCustomId(PlayCommandMessageComponentID.TOGGLE_PAUSE)
               .setLabel("  ⏸  ")
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
