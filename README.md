@@ -4,7 +4,7 @@
   <img src="public\overseer-music-github-readme-cover.png?raw=true" alt="Overseer music custom image"/>
 </p>
 
-This is a simple Discord music bot written in TypeScript using Yarn as the package manager. It utilizes Discord.js for interacting with the Discord API and features basic music playback capabilities.
+This is a simple Discord music bot written in TypeScript using Yarn as the package manager. It utilizes Discord.js for interacting with the Discord API and features basic music playback and queue management capabilities.
 
 ## Prerequisites
 
