@@ -22,7 +22,7 @@ class Application {
 
   public start() {
     this.musicBot
-      .start()
+      .startBot()
       .then(() => {
         this.logger.info("Bot started successfully");
         this.startServer();
@@ -45,13 +45,15 @@ class Application {
         });
     });
 
-    this.app.listen(this.port, () => {
-      this.logger.info(
-        `[server]: Server is running at http://localhost:${this.port}`
-      );
-    }).on('error', (err) => {
-      this.logger.error('Server failed to start:', err);
-    });
+    this.app
+      .listen(this.port, () => {
+        this.logger.info(
+          `[server]: Server is running at http://localhost:${this.port}`
+        );
+      })
+      .on("error", (err) => {
+        this.logger.error("Server failed to start:", err);
+      });
   }
 }
 
