@@ -29,46 +29,40 @@ export class MusicBot {
     this.discordRestClient = new DiscordRestClient().setToken(
       process.env.DISCORD_ACCESS_TOKEN
     );
+    this.addClientEventHandlers();
   }
 
-  public async start(): Promise<void> {
+  public async startBot(): Promise<void> {
     try {
-      this.addClientEventHandlers();
-
       const commands = this.commandsHandler.getSlashCommands();
 
       this.discordClient.login(process.env.DISCORD_ACCESS_TOKEN);
-      const guilds = await this.discordClient.guilds.fetch();
 
-      guilds.forEach((guild) => {
-        this.discordRestClient
-          .put(
-            Routes.applicationGuildCommands(
-              process.env.DISCORD_CLIENT_ID,
-              guild.id
-            ),
-            { body: commands }
-          )
-          .then((data: any) => {
-            this.logger.info(
-              `Successfully reloaded ${data.length} application (/) commands to the ${guild.name} server`
-            );
-          })
-          .catch((err) => {
-            this.logger.error(err);
-          });
-      });
+      this.discordRestClient
+        .put(Routes.applicationCommands(process.env.DISCORD_CLIENT_ID), {
+          body: commands,
+        })
+        .then((data: any) => {
+          this.logger.info(
+            `Successfully registered ${data.length} global application (/) commands`
+          );
+        })
+        .catch((err) => {
+          this.logger.error(err);
+        });
     } catch (err) {
       return Promise.reject(err);
     }
   }
 
   public async health(): Promise<any> {
+    const { readyTimestamp, uptime, isReady } = this.discordClient;
+
     return {
       time: Date.now(),
-      readyTime: this.discordClient.readyTimestamp,
-      isReady: this.discordClient.isReady(),
-      uptime: this.discordClient.uptime,
+      readyTime: readyTimestamp,
+      isReady: isReady(),
+      uptime: uptime,
     };
   }
 
