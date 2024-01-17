@@ -8,7 +8,6 @@ export class MediaService {
   private youTubeIClient: YouTubeIClient;
 
   constructor() {
-    console.log("Initialized MediaService");
     this.spotifyApi = SpotifyApi.withClientCredentials(
       process.env.SPOTIFY_CLIENT_ID,
       process.env.SPOTIFY_CLIENT_SECRET
