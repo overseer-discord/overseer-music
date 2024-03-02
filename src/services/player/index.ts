@@ -287,6 +287,10 @@ export class PlayerService {
         }
       });
 
+      stream.stream.on("error", (err) => {
+        this.logger.error("Stream error", err);
+      });
+
       const resource = this.createAudioResource(stream.stream, stream.type);
 
       this.startPlaying(serverQueue, resource);
