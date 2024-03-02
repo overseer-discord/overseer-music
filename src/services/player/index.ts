@@ -93,7 +93,7 @@ export class PlayerService {
 
         return embeddedMessage;
       } catch (err) {
-        console.log(err);
+        this.logger.error(err);
         this.queueService.removeGuildQueue(options.guildId);
         return err;
       }
@@ -294,7 +294,7 @@ export class PlayerService {
 
       return songInfoEmbed;
     } catch (err) {
-      console.log(err);
+      this.logger.error(err);
     }
   }
 
