@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntui-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy application
         uses: appleboy/ssh-action@v1.0.3
