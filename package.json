@@ -7,7 +7,7 @@
     "test": "jest",
     "dev": "npx nodemon",
     "build": "npx tsc",
-    "start": "npm build && node build/main.js"
+    "start": "npm run build && node build/main.js"
   },
   "repository": {
     "type": "git",
