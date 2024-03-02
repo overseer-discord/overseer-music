@@ -18,5 +18,5 @@ jobs:
           script: |
             mkdir app
             cd app
-            git clone git@github.com:overseer-discord/overseer-music.git
+            git clone https://github.com/overseer-discord/overseer-music.git
             echo 'Deplomeny successfult to ubuntu server'
