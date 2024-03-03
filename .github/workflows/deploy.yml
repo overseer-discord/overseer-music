@@ -24,7 +24,7 @@ jobs:
 
             cd "$directory" || exit 1
 
-            if [ ! -d "$directory" ]; then
+            if [ ! -d "overseer-music" ]; then
               git clone https://github.com/overseer-discord/overseer-music.git "$directory"
             else
               git pull origin main
