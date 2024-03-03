@@ -26,9 +26,10 @@ jobs:
 
             if [ ! -d "overseer-music" ]; then
               git clone https://github.com/overseer-discord/overseer-music.git "$directory"
-            else
+              cd overseer-music
+              else
+              cd overseer-music
               git pull origin main
             fi
-            cd overseer-music
             chmod +x deploy.sh
             ./deploy.sh
