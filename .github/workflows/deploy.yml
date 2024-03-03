@@ -16,7 +16,6 @@ jobs:
           username: ${{secrets.SSH_USERNAME}}
 
           script: |
-            mkdir app
-            cd app
-            git clone https://github.com/overseer-discord/overseer-music.git
-            echo 'Deplomeny successfult to ubuntu server'
+            cd ~/
+            chmod +x deploy.sh
+            ./deploy.sh
