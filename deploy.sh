@@ -1,19 +1,8 @@
 #!/bin/bash
 
-# directory="app"
+npm install --global pm2
+npm install --global yarn
+yarn run start-droplet
 
-# if [ ! -d "$directory" ]; then
-#   mkdir "$directory"
-# fi
-
-# cd "$directory" || exit 1
-
-# if [ ! -d "$directory" ]; then
-#   git clone https://github.com/overseer-discord/overseer-music.git "$directory"
-# else
-#   git pull origin main
-# fi
-
-npm i -g pm2
 
 echo 'Deployment successful to Ubuntu server'
