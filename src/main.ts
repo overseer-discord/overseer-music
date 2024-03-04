@@ -33,6 +33,10 @@ class Application {
   }
 
   public startServer() {
+    this.app.get("/", (req: Request, res: Response) => {
+      res.status(200).send("[server]: Application is running");
+    });
+
     this.app.get("/health", (req: Request, res: Response) => {
       this.musicBot
         .health()

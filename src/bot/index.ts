@@ -1,4 +1,5 @@
 import {
+  ActivityType,
   ButtonInteraction,
   ChatInputCommandInteraction,
   Client,
@@ -80,6 +81,9 @@ export class MusicBot {
 
     this.discordClient.on(Events.ClientReady, () => {
       this.logger.info("Overseer music bot client logged in");
+      this.discordClient.user.setActivity("over you", {
+        type: ActivityType.Watching,
+      });
     });
 
     this.discordClient.on(Events.ShardReconnecting, () => {
