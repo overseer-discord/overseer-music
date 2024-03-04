@@ -61,7 +61,6 @@ export class MusicBot {
     return {
       time: Date.now(),
       readyTime: readyTimestamp,
-      isReady: isReady(),
       uptime: uptime,
     };
   }
