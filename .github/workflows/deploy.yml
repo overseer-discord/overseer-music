@@ -31,5 +31,4 @@ jobs:
               cd overseer-music
               git pull origin main
             fi
-            chmod +x deploy.sh
-            ./deploy.sh
+            yarn run start-droplet
