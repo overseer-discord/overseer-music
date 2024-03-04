@@ -8,7 +8,7 @@
     "dev": "npx nodemon",
     "build": "npx tsc",
     "start": "npm run build && node build/main.js",
-    "start-droplet": "yarn && pm2 kill && pm2 start build/main.js  --name overseer-music"
+    "start-droplet": "yarn && yarn build && pm2 kill && pm2 start build/main.js  --name overseer-music"
   },
   "repository": {
     "type": "git",
