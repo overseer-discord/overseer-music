@@ -31,5 +31,7 @@ jobs:
               cd overseer-music
               git pull origin main
             fi
+            export NVM_DIR=~/.nvm
+            source ~/.nvm/nvm.sh
             npm install -g yarn
             yarn run start-droplet
