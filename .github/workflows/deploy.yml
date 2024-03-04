@@ -31,4 +31,5 @@ jobs:
               cd overseer-music
               git pull origin main
             fi
+            npm install -g yarn
             yarn run start-droplet
