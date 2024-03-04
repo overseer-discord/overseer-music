@@ -10,10 +10,18 @@ jobs:
     steps:
       - name: Deploy application
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DISCORD_CLIENT_ID: ${{secrets.DISCORD_CLIENT_ID}}
+          DISCORD_CLIENT_SECRET: ${{secrets.DISCORD_CLIENT_SECRET}}
+          DISCORD_ACCESS_TOKEN: ${{secrets.DISCORD_ACCESS_TOKEN}}
+          SPOTIFY_CLIENT_ID: ${{secrets.SPOTIFY_CLIENT_ID}}
+          SPOTIFY_CLIENT_SECRET: ${{secrets.SPOTIFY_CLIENT_SECRET}}
         with:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
           username: ${{secrets.SSH_USERNAME}}
+
+          envs: DISCORD_CLIENT_ID,DISCORD_CLIENT_SECRET,DISCORD_ACCESS_TOKEN,SPOTIFY_CLIENT_ID,SPOTIFY_CLIENT_SECRET
 
           script: |
             cd ~/
