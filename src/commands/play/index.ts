@@ -8,6 +8,8 @@ import {
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
+  Message,
+  MessagePayload,
   SlashCommandBuilder,
   VoiceBasedChannel,
 } from "discord.js";
@@ -63,7 +65,7 @@ export default class PlayCommand implements Command {
       const voiceChannel: VoiceBasedChannel =
         await this.getVoiceChannelFromInteraction(interaction);
 
-      const embed = await this.playerService.queueSongs(songs, {
+      const embeds = await this.playerService.queueSongs(songs, {
         guildId: interaction.guild.id,
         textChannel: interaction.channel,
         voiceChannel: voiceChannel,
@@ -73,26 +75,9 @@ export default class PlayCommand implements Command {
       const messageComponents = this.createMessageComponents(serverQueue);
 
       await interaction.editReply({
-        embeds: [embed],
-        components: [messageComponents as any],
+        embeds: embeds,
+        ...(embeds.length > 1 && { components: [messageComponents as any] }),
       });
-
-      if (songs.length > 1) {
-        const playlistDuration = songs.reduce(
-          (totalDuration, song) => totalDuration + song.duration,
-          0
-        );
-        const formattedSeconds = formatSecondsToReadableTime(playlistDuration);
-
-        const queueEmbed = new EmbedBuilder()
-          .setColor(0x0099ff)
-          .setTitle(
-            `${songs.length} songs added to the queue \`${formattedSeconds} \``
-          )
-          .setTimestamp();
-
-        interaction.channel.send({ embeds: [queueEmbed] });
-      }
     } catch (err) {
       interaction.editReply("Couldn't fetch requested media");
       return Promise.reject(err);

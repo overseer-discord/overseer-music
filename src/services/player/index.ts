@@ -18,6 +18,7 @@ import {
   truncateString,
 } from "../../utils";
 import { Client as YouTubeIClient, VideoCompact } from "youtubei";
+import { threadId } from "worker_threads";
 
 @injectable()
 export class PlayerService {
@@ -43,6 +44,7 @@ export class PlayerService {
     }
   ) {
     const serverQueue = this.queueService.getGuildQueue(options.guildId);
+    const embeds: EmbedBuilder[] = [];
 
     if (!serverQueue) {
       const newServerQueue: ServerQueue = {
@@ -91,7 +93,7 @@ export class PlayerService {
           options
         );
 
-        return embeddedMessage;
+        embeds.push(embeddedMessage);
       } catch (err) {
         console.log(err);
         this.queueService.removeGuildQueue(options.guildId);
@@ -99,11 +101,13 @@ export class PlayerService {
       }
     } else {
       serverQueue.songs.push(...songs);
-      //Handle playlist
-      const addedSongInfoToQueueEmbeddedMessage =
-        this.getAddedSongInfoToQueueEmbeddedMessage(songs[0]);
-      return addedSongInfoToQueueEmbeddedMessage;
     }
+
+    if (songs.length > 1) {
+      embeds.push(this.getAddedPlaylistToQueueEmbeddedMessage(songs));
+    }
+
+    return embeds;
   }
 
   public async nextSong(guildId: string): Promise<any> {
@@ -370,14 +374,17 @@ export class PlayerService {
   };
 
   getAddedPlaylistToQueueEmbeddedMessage = (songs: SongInfo[]) => {
+    const playlistDuration = songs.reduce(
+      (totalDuration, song) => totalDuration + song.duration,
+      0
+    );
+    const formattedSeconds = formatSecondsToReadableTime(playlistDuration);
+
     return new EmbedBuilder()
       .setColor(0x0099ff)
-      .setTitle("Playlist")
-      .setAuthor({
-        name: `Added ${songs.length} songs to the queue..`,
-        iconURL: "https://i.imgur.com/AfFp7pu.png",
-        url: "https://discord.js.org",
-      })
-      .setThumbnail(songs[0].thumbnail);
+      .setTitle(
+        `${songs.length} songs added to the queue \`${formattedSeconds} \``
+      )
+      .setTimestamp();
   };
 }
