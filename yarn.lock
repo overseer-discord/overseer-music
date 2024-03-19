@@ -5058,10 +5058,10 @@ yocto-queue@^0.1.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-0.1.0.tgz#0294eb3dee05028d31ee1a5fa2c556a6aaf10a1b"
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
-youtubei@^1.3.4:
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/youtubei/-/youtubei-1.3.4.tgz#b9761e33dcc6e0a9569e6628ba1fc48c729636f0"
-  integrity sha512-xN6p2oddcTpreF/ojU2mChwdiUlV+TwwUL6xgP6lXRuxeGS5MokM1tzRdXCgIpxkzYYNNAWpt7xvPuAUQM0PCg==
+youtubei@^1.3.5:
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/youtubei/-/youtubei-1.3.5.tgz#0333f8fabd9f383d11f5b75678a424e2350ef158"
+  integrity sha512-OeRcML5v6mDkAX4IPDMt8Z8lO8vN3jR89OY4PU9SUsdK8HFGin5dMm4sEOGgdvGKxtJaddhtZ+wGXGqzHuB/cg==
   dependencies:
     node-fetch "2.6.7"
     protobufjs "7.2.4"
